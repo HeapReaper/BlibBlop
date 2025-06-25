@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bun": "^1.2.13",
+    "bun": "^1.2.15",
     "chalk": "^5.4.1",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.7",
