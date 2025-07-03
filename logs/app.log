@@ -176,3 +176,7 @@
 [18-05-2025 18:59:40] [ERROR] Module BumpReminder commands.ts does not have 'commands' export
 [19-05-2025 19:49:07] [ERROR] Error while running migrations: ReferenceError: mysql is not defined
 [19-05-2025 19:56:32] [ERROR] Error while running migrations: ReferenceError: mysql is not defined
+[15-06-2025 14:31:01] [ERROR] Error while running migrations: Error: Failed to connect
+[15-06-2025 17:14:23] [ERROR] Error loading events for module 'Community': TypeError: undefined is not an object (evaluating 'client.guilds')
+[15-06-2025 17:15:02] [ERROR] Error loading events for module 'Community': TypeError: this.sendLeaveMessage is not a function. (In 'this.sendLeaveMessage()', 'this.sendLeaveMessage' is undefined)
+[03-07-2025 20:49:55] [ERROR] Error while running migrations: Error: connect ETIMEDOUT
