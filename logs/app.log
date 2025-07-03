@@ -179,3 +179,4 @@
 [15-06-2025 14:31:01] [ERROR] Error while running migrations: Error: Failed to connect
 [15-06-2025 17:14:23] [ERROR] Error loading events for module 'Community': TypeError: undefined is not an object (evaluating 'client.guilds')
 [15-06-2025 17:15:02] [ERROR] Error loading events for module 'Community': TypeError: this.sendLeaveMessage is not a function. (In 'this.sendLeaveMessage()', 'this.sendLeaveMessage' is undefined)
+[03-07-2025 20:49:55] [ERROR] Error while running migrations: Error: connect ETIMEDOUT

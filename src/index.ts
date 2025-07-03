@@ -44,7 +44,7 @@ client.on('ready', async client => {
 		setInterval(async (): Promise<void> => {
 			Logging.debug('Keeping the database connection active in index.ts...');
 			await QueryBuilder.select('migrations').limit(1).execute();
-		}, 60000);
+		}, 10000);
 	} catch (error) {
 		Logging.error(`Error while keeping the DB active: ${error}`);
 	}

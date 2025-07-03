@@ -1,6 +1,6 @@
 import * as Minio from 'minio';
-import { getEnv } from '@utils/env';
-import { Logging } from '@utils/logging';
+import {getEnv} from '@utils/env';
+import {Logging} from '@utils/logging';
 
 export default class S3OperationBuilder {
     private static minioClient: any;
@@ -9,13 +9,25 @@ export default class S3OperationBuilder {
     static init(): void {
         if (S3OperationBuilder.minioClient) return;
 
-        S3OperationBuilder.minioClient = new Minio.Client({
-            endPoint: <string>getEnv('S3_ENDPOINT'),
-            port: <number><unknown>getEnv('S3_PORT'),
-            useSSL: false,
-            accessKey: <string>getEnv('S3_ACCESS_KEY'),
-            secretKey: <string>getEnv('S3_SECRET_KEY'),
-        });
+        try {
+            const endpoint: string = (getEnv('S3_ENDPOINT') as string)?.replace(/^https?:\/\//, '');
+            const port: number = getEnv('S3_PORT') as unknown as number || 443;
+            const accessKey: string = getEnv('S3_ACCESS_KEY') as string;
+            const secretKey: string = getEnv('S3_SECRET_KEY') as string;
+
+            S3OperationBuilder.minioClient = new Minio.Client({
+                endPoint: endpoint,
+                port,
+                useSSL: true,
+                accessKey,
+                secretKey,
+            });
+
+            Logging.debug('MinIO client initialized successfully');
+        } catch (error) {
+            Logging.error(`Failed to initialize MinIO client: ${error}`);
+            S3OperationBuilder.minioClient = null;
+        }
     }
 
     static setBucket(bucketName: string): S3OperationBuilder {
@@ -32,10 +44,10 @@ export default class S3OperationBuilder {
             await S3OperationBuilder.minioClient.fPutObject(this.bucketName, objectName, filePath);
 
             Logging.debug('S3 upload successful!');
-            return { success: true };
+            return {success: true};
         } catch (error) {
             Logging.debug(`S3 upload failed: ${error}`);
-            return { success: false, error: error };
+            return {success: false, error: error};
         }
     }
 
@@ -43,10 +55,10 @@ export default class S3OperationBuilder {
         try {
             await S3OperationBuilder.minioClient.putObject(this.bucketName, objectName, buffer, buffer.length, metaData);
             Logging.debug('S3 upload (buffer) successful!');
-            return { success: true };
+            return {success: true};
         } catch (error) {
             Logging.debug(`S3 upload (buffer) failed: ${error}`);
-            return { success: false, error: error };
+            return {success: false, error: error};
         }
     }
 
@@ -55,10 +67,10 @@ export default class S3OperationBuilder {
             const object = await S3OperationBuilder.minioClient.presignedGetObject(this.bucketName, objectName);
 
             Logging.debug('S3 getObject successful!');
-            return { success: object };
+            return {success: object};
         } catch (error) {
             Logging.debug(`S3 getObject failed: ${error}`);
-            return { success: false, error: error };
+            return {success: false, error: error};
         }
     }
 
@@ -67,10 +79,10 @@ export default class S3OperationBuilder {
             const object = await S3OperationBuilder.minioClient.removeObject(this.bucketName, objectName);
 
             Logging.debug('S3 delete successful!');
-            return { success: object };
+            return {success: object};
         } catch (error) {
             Logging.error(`S3 delete failed: ${error}`);
-            return { success: false, error: error };
+            return {success: false, error: error};
         }
     }
 
@@ -79,26 +91,45 @@ export default class S3OperationBuilder {
             const data: any[] = [];
             const stream = await S3OperationBuilder.minioClient.listObjects(this.bucketName);
 
+
             return new Promise((resolve, reject) => {
                 stream.on('data', (obj: Minio.BucketItem) => {
                     data.push(obj);
                 });
                 stream.on('end', () => {
                     Logging.debug(`S3 lists successful! Found ${data.length} objects.`);
-                    resolve({ success: true, data });
+                    resolve({success: true, data});
                 });
                 stream.on('error', (error: any) => {
                     Logging.error(`S3 lists failed: ${error}`);
-                    reject({ success: false, error });
+                    reject({success: false, error});
                 });
             });
         } catch (error) {
             Logging.debug(`S3 lists failed: ${error}`);
-            return { success: false, error: error };
+            return {success: false, error: error};
         }
     }
 
-    static async isOnline(): Promise<boolean> {
+    async status(): Promise<{ up: boolean; latency: number | null; error?: any }> {
+        const start = Date.now();
 
+        try {
+            await S3OperationBuilder.minioClient.bucketExists(this.bucketName);
+
+            const end = Date.now();
+            return {
+                up: true,
+                latency: end - start,
+            };
+        } catch (error) {
+            Logging.error(`S3 status check failed: ${error}`);
+            return {
+                up: false,
+                latency: null,
+                error,
+            };
+        }
     }
+
 }
