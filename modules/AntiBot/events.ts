@@ -36,7 +36,7 @@ export default class Events {
             };
 
             try {
-                const res = await fetch("https://pawtect.heapreaper.nl/event/message", {
+                const res = await fetch("https://api.pawtect.nl/event/message", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
@@ -61,7 +61,7 @@ export default class Events {
             const accountAgeDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
             const hasAvatar = !!member.user.avatar;
 
-            const response = await fetch("https://pawtect.heapreaper.nl/event/join", {
+            const response = await fetch("https://api.pawtect.nl/event/join", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
