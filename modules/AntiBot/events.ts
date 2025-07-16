@@ -4,7 +4,6 @@ import {
     Message, TextChannel,
 } from 'discord.js';
 import { Logging } from '@utils/logging';
-import { Faker } from '@heapreaper/discordfaker';
 
 export default class Events {
     private client: Client;
@@ -13,7 +12,6 @@ export default class Events {
         this.client = client;
         this.messageEvents();
         this.memberEvents();
-        Faker.memberAdd(client)
     }
 
     messageEvents(): void {
