@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@aerobytes/discordfaker": "^1.0.0",
+    "@heapreaper/discordfaker": "^1.1.9",
     "bun": "^1.2.13",
     "chalk": "^5.4.1",
     "discord.js": "^14.14.1",

@@ -1,9 +1,9 @@
 import {
-    Client,
+    Client, Events as DiscordEvents,
     Events as discordEvents,
-    Message,
+    Message, TextChannel,
 } from 'discord.js';
-
+import { Logging } from '@utils/logging';
 
 export default class Events {
     private client: Client;
@@ -11,6 +11,7 @@ export default class Events {
     constructor(client: Client) {
         this.client = client;
         this.messageEvents();
+        this.memberEvents();
     }
 
     messageEvents(): void {
@@ -41,17 +42,11 @@ export default class Events {
                     body: JSON.stringify(payload),
                 });
 
-                if (res.status === 403) {
+                if (res.status !== 200) {
                     const reason = await res.text();
-                    await message.delete();
-                    // @ts-ignore
-                    await message.channel.send(
-                      `<@${message.author.id}> je bericht is verwijderd: **${reason}**`
-                    );
-                }
+                    Logging.warn(`AntiBot event triggered for ${message.author.username}#${reason}`);
 
-                if (res.status === 200) {
-                    console.log(res.text);
+                    await message.delete();
                 }
             } catch (err) {
                 console.error("API error:", err);
@@ -59,4 +54,42 @@ export default class Events {
         });
     }
 
+    memberEvents(): void {
+        this.client.on(DiscordEvents.GuildMemberAdd, async (member) => {
+            const createdAt = member.user.createdAt;
+            const now = new Date();
+            const accountAgeDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+            const hasAvatar = !!member.user.avatar;
+
+            const response = await fetch("https://pawtect.heapreaper.nl/event/join", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: member.user.username,
+                    account_age_days: accountAgeDays,
+                    has_avatar: hasAvatar,
+                    rules: {
+                        min_account_age: 1,
+                        username_regex: "bot",
+                        must_have_avatar: false,
+                    },
+                }),
+            });
+
+            if (response.status !== 200) {
+                const reason: string = await response.text();
+
+                try {
+                    await member.kick(`Pawtect kick: ${reason}`);
+                    Logging.warn(`Kicked ${member.user.tag} - Reason: ${reason}`);
+                } catch (err) {
+                    Logging.error(`Failed to kick ${member.user.tag}:`, err);
+                }
+            } else {
+                Logging.info(`${member.user.tag} passed join checks`);
+            }
+        });
+    }
 }
