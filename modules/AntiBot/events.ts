@@ -26,7 +26,7 @@ export default class Events {
                 message_length: message.content.length,
                 message_count: 0,
                 rules: {
-                    min_message_length: 1,
+                    min_message_length: 0,
                     max_message_length: 1024,
                     max_messages_per_user: 25,
                     max_channels_in_window: 3,
