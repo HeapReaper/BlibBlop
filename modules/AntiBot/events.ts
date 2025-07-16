@@ -82,7 +82,7 @@ export default class Events {
                 const reason: string = await response.text();
 
                 try {
-                    await member.kick(`Pawtect kick: ${reason}`);
+                    await member.timeout(10 * 60 * 100, `Pawtect timeout: ${reason}`);
                     Logging.warn(`Kicked ${member.user.tag} - Reason: ${reason}`);
                 } catch (err) {
                     Logging.error(`Failed to kick ${member.user.tag}:`, err);
