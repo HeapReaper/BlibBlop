@@ -1,12 +1,21 @@
-import {
-    Client, Events as DiscordEvents,
-    Events as discordEvents,
-    Message, TextChannel,
-} from 'discord.js';
-import { Logging } from '@utils/logging';
+import {Client, Events as DiscordEvents, Events as discordEvents, Message,} from 'discord.js';
+import {Logging} from '@utils/logging';
+import {Pawtect, StatusCodes} from "@utils/pawtect";
 
 export default class Events {
     private client: Client;
+    private messageRules = {
+        min_message_length: 0,
+        max_message_length: 1024,
+        max_messages_per_user: 25,
+        max_channels_in_window: 3,
+        time_window_seconds: 10,
+    }
+    private memberJoinRules = {
+        min_account_age: 1,
+        username_regex: 'bot',
+        must_have_avatar: false,
+    }
 
     constructor(client: Client) {
         this.client = client;
@@ -18,77 +27,36 @@ export default class Events {
         this.client.on(discordEvents.MessageCreate, async (message: Message): Promise<void> => {
             if (message.author.id === this.client.user?.id || message.author.bot) return;
 
-            const payload = {
-                username: message.author.username,
-                author_id: message.author.id,
-                channel_id: message.channel.id,
-                message_content: message.content,
-                message_length: message.content.length,
-                message_count: 0,
-                rules: {
-                    min_message_length: 0,
-                    max_message_length: 1024,
-                    max_messages_per_user: 25,
-                    max_channels_in_window: 3,
-                    time_window_seconds: 10,
-//                    message_content_regex: "",
-                },
-            };
-
             try {
-                const res = await fetch("https://api.pawtect.nl/event/message", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
+                const result = await Pawtect.onMessage(message, this.messageRules)
 
-                if (res.status !== 200) {
-                    const reason = await res.text();
-                    Logging.warn(`AntiBot event triggered for ${message.author.username}#${reason}`);
-
+                if (result.status === StatusCodes.FORBIDDEN) {
+                    Logging.info(`AntiBot event triggered for ${message.author.username} — ${result.reason}`);
                     await message.delete();
                 }
             } catch (err) {
-                console.error("API error:", err);
+                console.error('API error:', err);
             }
         });
     }
 
     memberEvents(): void {
         this.client.on(DiscordEvents.GuildMemberAdd, async (member) => {
-            const createdAt = member.user.createdAt;
-            const now = new Date();
-            const accountAgeDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-            const hasAvatar = !!member.user.avatar;
+            try {
+                const result = await Pawtect.onJoin(member, this.memberJoinRules);
 
-            const response = await fetch("https://api.pawtect.nl/event/join", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username: member.user.username,
-                    account_age_days: accountAgeDays,
-                    has_avatar: hasAvatar,
-                    rules: {
-                        min_account_age: 1,
-                        username_regex: "bot",
-                        must_have_avatar: false,
-                    },
-                }),
-            });
-
-            if (response.status !== 200) {
-                const reason: string = await response.text();
-
-                try {
-                    await member.timeout(10 * 60 * 100, `Pawtect timeout: ${reason}`);
-                    Logging.warn(`Kicked ${member.user.tag} - Reason: ${reason}`);
-                } catch (err) {
-                    Logging.error(`Failed to kick ${member.user.tag}:`, err);
+                if (result.status === StatusCodes.FORBIDDEN) {
+                    try {
+                        await member.timeout(10 * 60 * 1000, `Pawtect timeout: ${result.reason}`);
+                        Logging.warn(`Timed out ${member.user.tag} - Reason: ${result.reason}`);
+                    } catch (err) {
+                        Logging.error(`Failed to timeout ${member.user.tag}:`, err);
+                    }
+                } else {
+                    Logging.info(`${member.user.tag} passed join checks`);
                 }
-            } else {
-                Logging.info(`${member.user.tag} passed join checks`);
+            } catch (error) {
+                Logging.error('Error during Pawtect onJoin check:', error);
             }
         });
     }
