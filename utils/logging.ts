@@ -23,7 +23,7 @@ export class Logging {
 		}
 	}
 
-	static error(message: string | number, err: unknown): void {
+	static error(message: string | number): void {
 		console.log(`[${this.formatDate(this.now())}] [${chalk.red('ERROR')}] ${message}`);
 
 		if (getEnv('LOG_LEVEL') === 'error' || getEnv('LOG_LEVEL') === 'all') {
