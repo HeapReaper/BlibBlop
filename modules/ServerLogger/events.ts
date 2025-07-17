@@ -21,7 +21,8 @@ import path from 'path';
 import { Github } from '@utils/github';
 import { Color } from '@enums/ColorEnum'
 import db from '@utils/knex.ts';
-import {Faker} from "@utils/faker.ts";
+import * as process from "node:process";
+import os from 'os';
 
 export default class Events {
 	private client: Client;
@@ -68,6 +69,7 @@ export default class Events {
 				.addFields(
 					{ name: 'Gebruiker:', value: `<@${this.client.user?.id}>` },
 					{ name: 'Versie:', value: `${currentRelease ? currentRelease : 'Rate limited'}` },
+					{ name: 'Host', value: `${os.hostname()}`},
 					{ name: 'Ping:', value: `${this.client.ws.ping}ms` }
 				)
 				.setThumbnail('attachment://bot.png');
