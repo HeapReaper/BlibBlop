@@ -13,7 +13,10 @@ export default class Events {
         max_messages_per_user: 25,
         max_channels_in_window: 3,
         time_window_seconds: 10,
+        prevent_spam: [2, 3],
+        prevent_toxic: [2, 3]
     }
+
     private memberJoinRules = {
         min_account_age: 1,
         username_regex: 'bot',
