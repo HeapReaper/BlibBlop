@@ -1,6 +1,6 @@
 import * as Minio from 'minio';
-import {getEnv} from '@utils/env';
-import {Logging} from '@utils/logging';
+import { getEnv } from '@utils/env';
+import { Logging } from '@utils/logging';
 
 export default class S3OperationBuilder {
     private static minioClient: any;
@@ -17,7 +17,7 @@ export default class S3OperationBuilder {
 
             S3OperationBuilder.minioClient = new Minio.Client({
                 endPoint: endpoint,
-                port,
+                port: 443,
                 useSSL: true,
                 accessKey,
                 secretKey,

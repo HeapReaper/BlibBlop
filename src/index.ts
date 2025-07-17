@@ -29,6 +29,8 @@ const client = new Client({
 });
 
 client.on('ready', async client => {
+	console.log(await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status())
+
 	try {
 		await loadModules(client);
 
