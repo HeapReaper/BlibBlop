@@ -30,7 +30,6 @@ export async function runMigrations(): Promise<void> {
 
         try {
             const migrationFile: string = fs.readFileSync(`${<string>getEnv('MODULES_BASE_PATH')}migrations/${file}`, 'utf-8');
-
             await QueryBuilder
                 .raw(migrationFile)
                 .execute();

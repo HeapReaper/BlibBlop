@@ -270,7 +270,6 @@ class QueryBuilder {
 
     private async executeRaw(): Promise<any> {
         if (!QueryBuilder.connection) QueryBuilder.connect();
-
         const startTime: number = Date.now();
 
         Logging.trace(`Running raw query: ${this._rawQuery}`);
@@ -329,7 +328,7 @@ class QueryBuilder {
                 return await this.executeDelete();
             case 'insert':
                 return await this.executeInsert();
-            case 'raw':
+            default:
                 return await this.executeRaw();
         }
     }
