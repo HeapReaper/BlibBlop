@@ -151,15 +151,25 @@ export default class Events {
 
 			Logging.debug('An message has been edited!');
 
+			// TODO: Temp fix
+			const fields = [
+				{ name: 'Gebruiker', value: `<@${oldMessage.author?.id}>` }
+			];
+
+			if ((oldMessage.content ?? '').length <= 1024) {
+				fields.push({ name: 'Oud:', value: oldMessage.content ?? 'Er ging wat fout' });
+			}
+
+			if ((newMessage.content ?? '').length <= 1024) {
+				fields.push({ name: 'Nieuw:', value: newMessage.content ?? 'Er ging wat fout' });
+			}
+
+
 			const messageUpdateEmbed: any = new EmbedBuilder()
 				.setColor(Color.Orange)
 				.setTitle('Bericht bewerkt')
 				.setThumbnail('attachment://chat.png')
-				.addFields(
-					{ name: 'Gebruiker', value: `<@${oldMessage.author?.id}>`},
-					{ name: 'Oud:', value: oldMessage.content ?? 'Er ging wat fout' },
-					{ name: 'Nieuw:', value: newMessage.content ?? 'Er ging wat fout'}
-				);
+				.addFields(...fields);
 
 			this.logChannel.send({ embeds: [messageUpdateEmbed], files: [this.chatIcon] });
 		});
