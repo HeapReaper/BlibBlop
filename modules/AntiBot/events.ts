@@ -1,9 +1,12 @@
-import {Client, Events as DiscordEvents, Events as discordEvents, Message,} from 'discord.js';
+import {Client, Events as DiscordEvents, Events as discordEvents, Message, TextChannel,} from 'discord.js';
 import {Logging} from '@utils/logging';
 import {Pawtect, StatusCodes} from "@utils/pawtect";
+import {getEnv} from "@utils/env.ts";
 
 export default class Events {
     private client: Client;
+    private logChannel: any;
+
     private messageRules = {
         min_message_length: 0,
         max_message_length: 1024,
@@ -19,6 +22,7 @@ export default class Events {
 
     constructor(client: Client) {
         this.client = client;
+        this.logChannel = this.client.channels.cache.get(<string>getEnv('MOD_LOG')) as TextChannel;
         this.messageEvents();
         this.memberEvents();
     }
@@ -31,11 +35,12 @@ export default class Events {
                 const result = await Pawtect.onMessage(message, this.messageRules)
 
                 if (result.status === StatusCodes.FORBIDDEN) {
-                    Logging.info(`AntiBot event triggered for ${message.author.username} — ${result.reason}`);
+                    Logging.info(`Pawtect event triggered for ${message.author.username}: ${result.reason}`);
+                    await this.logChannel.send(`Pawtect event triggered for ${message.author.username}: ${result.reason}`);
                     await message.delete();
                 }
-            } catch (err) {
-                console.error('API error:', err);
+            } catch (error) {
+                Logging.error(`API error: ${error}`);
             }
         });
     }
@@ -48,15 +53,16 @@ export default class Events {
                 if (result.status === StatusCodes.FORBIDDEN) {
                     try {
                         await member.timeout(10 * 60 * 1000, `Pawtect timeout: ${result.reason}`);
-                        Logging.warn(`Timed out ${member.user.tag} - Reason: ${result.reason}`);
-                    } catch (err) {
-                        Logging.error(`Failed to timeout ${member.user.tag}:`, err);
+                        await this.logChannel.send(`Pawtect timeout for user: ${member.user.username}: ${result.reason}`);
+                        Logging.warn(`Pawtect Timed out ${member.user.tag} - Reason: ${result.reason}`);
+                    } catch (error) {
+                        Logging.error(`Failed to timeout ${member.user.tag}: ${error}`);
                     }
                 } else {
                     Logging.info(`${member.user.tag} passed join checks`);
                 }
             } catch (error) {
-                Logging.error('Error during Pawtect onJoin check:', error);
+                Logging.error(`Error during Pawtect onJoin check: ${error}`);
             }
         });
     }
