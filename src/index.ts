@@ -10,6 +10,7 @@ import { getEnv } from '@utils/env';
 import { runMigrations } from '@utils/migrations.ts';
 import QueryBuilder from '@utils/database.ts';
 import * as process from "node:process";
+import S3OperationBuilder from "@utils/s3.ts";
 
 const client = new Client({
 	intents: [
@@ -28,8 +29,11 @@ const client = new Client({
 });
 
 client.on('ready', async client => {
+	console.log(await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status())
+
 	try {
 		await loadModules(client);
+
 	} catch (error) {
 		Logging.error(`Error while loading modules: ${error}`);
 	}
