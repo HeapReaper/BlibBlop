@@ -228,9 +228,7 @@ export default class Events {
 				attachments.push(new AttachmentBuilder(buffer, { name: filename }));
 			}
 
-			attachments.push(this.chatIcon);
-
-			await this.logChannel.send({ embeds: [messageDelete], files: attachments });
+			await this.logChannel.send({ embeds: [messageDelete], files: [this.chatIcon] });
 
 			if (attachments.length === 0) return;
 
