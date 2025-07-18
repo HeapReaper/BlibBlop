@@ -204,7 +204,14 @@ export default class Events {
 				.setTitle('Bericht verwijderd')
 				.setThumbnail('attachment://chat.png')
 				.addFields(
-					{ name: 'Gebruiker', value: `<@${message.partial ? messageFromDbCache.author_id ?? 0o10101 : message.author.id}>`},
+					{
+						name: 'Gebruiker',
+						value: `<@${
+							message.partial
+								? (messageFromDbCache && messageFromDbCache.author_id ? messageFromDbCache.author_id : '10101')
+								: message.author?.id ?? '10101'
+						}>`
+					},
 					{ name: 'Bericht:', value: message.content },
 				);
 
