@@ -2,7 +2,7 @@ import { createClient} from "@clickhouse/client";
 import { Message } from "discord.js";
 import {Logging} from "@utils/logging";
 
-const chClient = createClient({
+export const chClient = createClient({
   url: Bun.env.CLICKHOUSE_HOST ?? 'http://localhost:8123',
   username: Bun.env.CLICKHOUSE_USERNAME ?? 'default',
   password: Bun.env.CLICKHOUSE_PASSWORD ?? '',
