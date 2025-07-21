@@ -25,7 +25,7 @@ export default class S3OperationBuilder {
 
             Logging.debug('MinIO client initialized successfully');
         } catch (error) {
-            Logging.error(`Failed to initialize MinIO client: ${error}`);
+            Logging.warn(`Failed to initialize MinIO client: ${error}`);
             S3OperationBuilder.minioClient = null;
         }
     }
@@ -46,7 +46,7 @@ export default class S3OperationBuilder {
             Logging.debug('S3 upload successful!');
             return {success: true};
         } catch (error) {
-            Logging.debug(`S3 upload failed: ${error}`);
+            Logging.warn(`S3 upload failed: ${error}`);
             return {success: false, error: error};
         }
     }
@@ -57,7 +57,7 @@ export default class S3OperationBuilder {
             Logging.debug('S3 upload (buffer) successful!');
             return {success: true};
         } catch (error) {
-            Logging.debug(`S3 upload (buffer) failed: ${error}`);
+            Logging.warn(`S3 upload (buffer) failed: ${error}`);
             return {success: false, error: error};
         }
     }
@@ -69,7 +69,7 @@ export default class S3OperationBuilder {
             Logging.debug('S3 getObject successful!');
             return {success: object};
         } catch (error) {
-            Logging.debug(`S3 getObject failed: ${error}`);
+            Logging.warn(`S3 getObject failed: ${error}`);
             return {success: false, error: error};
         }
     }
@@ -81,7 +81,7 @@ export default class S3OperationBuilder {
             Logging.debug('S3 delete successful!');
             return {success: object};
         } catch (error) {
-            Logging.error(`S3 delete failed: ${error}`);
+            Logging.warn(`S3 delete failed: ${error}`);
             return {success: false, error: error};
         }
     }
@@ -101,7 +101,7 @@ export default class S3OperationBuilder {
                     resolve({success: true, data});
                 });
                 stream.on('error', (error: any) => {
-                    Logging.error(`S3 lists failed: ${error}`);
+                    Logging.warn(`S3 lists failed: ${error}`);
                     reject({success: false, error});
                 });
             });
@@ -123,7 +123,7 @@ export default class S3OperationBuilder {
                 latency: end - start,
             };
         } catch (error) {
-            Logging.error(`S3 status check failed: ${error}`);
+            Logging.warn(`S3 status check failed: ${error}`);
             return {
                 up: false,
                 latency: null,
