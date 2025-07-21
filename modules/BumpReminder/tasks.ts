@@ -17,23 +17,27 @@ export default class BumpReminderTasks {
 	}
 	
 	bumpReminderTask(): void {
-		setInterval(() => {
-			Logging.debug('Checking if the server can be bumped again!');
-			const messages = this.bumpChannel.messages.fetch({limit: 20});
-			
-			messages.then(messages => {
-				if (messages.size === 0) return;
-				
-				const lastMessage = messages.first(); // === Last message...
-				if (!lastMessage) return;
-				
-				if (lastMessage?.author.id === this.client.user?.id) return;
-				
-				// @ts-ignore
-				if (lastMessage.createdTimestamp < Date.now() - (2 * 60 * 60 * 1000)) {
-					this.bumpChannel.send('De server kan weer gebumped worden!');
-				}
-			});
-		}, 20000);
+		try {
+			setInterval(async () => {
+				Logging.debug('Checking if the server can be bumped again!');
+				const messages = this.bumpChannel.messages.fetch({limit: 20});
+
+				messages.then(async messages => {
+					if (messages.size === 0) return;
+
+					const lastMessage = messages.first(); // === Last message...
+					if (!lastMessage) return;
+
+					if (lastMessage?.author.id === this.client.user?.id) return;
+
+					// @ts-ignore
+					if (lastMessage.createdTimestamp < Date.now() - (2 * 60 * 60 * 1000)) {
+						await this.bumpChannel.send('De server kan weer gebumped worden!');
+					}
+				});
+			}, 20000);
+		} catch(e) {
+			Logging.warn(`Error in bump reminder tasks: ${e}`);
+		}
 	}
 }
