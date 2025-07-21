@@ -70,13 +70,14 @@ export default class CommandsListener {
 	}
 
 	async getMessageCount(authorId: string): Promise<number> {
+		// @ts-ignore
 		const result = await chClient.query({
 			query: `SELECT count(*) AS cnt FROM discord_messages WHERE author_id='${authorId}'`,
 			format: 'JSONEachRow'
 		});
 
 		const rows = await result.json();
-
+		// @ts-ignore
 		return rows[0]['cnt'];
 	}
 }

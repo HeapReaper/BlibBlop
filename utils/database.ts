@@ -285,6 +285,15 @@ class QueryBuilder {
         })
     }
 
+    static async isOnline(): Promise<boolean> {
+        try {
+            const status = await QueryBuilder.status();
+            return status.up;
+        } catch {
+            return false;
+        }
+    }
+
     static async status(): Promise<{ up: boolean; latency: number | null; error?: any }> {
         try {
             if (!QueryBuilder.connection) QueryBuilder.connect();

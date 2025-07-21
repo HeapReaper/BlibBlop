@@ -65,6 +65,21 @@ export async function insertReaction({
   });
 }
 
+export async function isClickhouseOnline(): Promise<boolean> {
+  try {
+    const resultSet = await chClient.query({
+      query: 'SELECT 1',
+      format: 'JSONEachRow',
+    });
+    const result = await resultSet.json();
+    // @ts-ignore
+    return result?.[0]?.['1'] === 1 || result?.[0]?.['1'] === '1';
+  } catch (err) {
+    Logging.warn(`ClickHouse is offline or unreachable: ${err}`,);
+    return false;
+  }
+}
+
 function formatTimestamp(date: Date): string {
   return date.toISOString()
     .replace('T', ' ')
