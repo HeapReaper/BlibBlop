@@ -72,4 +72,71 @@ export class Pawtect {
       reason: 'Join allowed',
     };
   }
+
+   static async sendNotification(
+     webhookUrls: string[],
+    userId: string | undefined,
+    channelId: string | undefined,
+    reason: string,
+    color: string,
+    action: string,
+    time: string | null = null,
+  ) {
+    const embed =  {
+      "title": "Beveiliging geactiveerd",
+        "description": "Door [Pawtect](https://pawtect.nl)",
+        "color": 15158332,
+        "footer": {
+        "text": "18-07-2025"
+      },
+      "thumbnail": {
+        "url": "https://pawtect.nl/assets/img/pawtect.png"
+      },
+      "author": {
+        "name": "Pawtect",
+          "icon_url": "https://pawtect.nl/assets/img/pawtect.png"
+      },
+      "fields": [
+        {
+          "name": "Gebruiker",
+          "value": `<@${userId}>`,
+          "inline": true
+        },
+
+        {
+          "name": "Reden",
+          "value": `${reason} ${channelId !== undefined ? `in <#${channelId}>` : ''}`,
+          "inline": true
+        },
+        {
+          "name": "Actie",
+          "value": "Mute",
+          "inline": true
+        },
+        {
+          "name": "Duur",
+          "value": "30 minuten",
+          "inline": true
+        },
+        {
+          "name": "Trigger",
+          "value": "Crypto",
+          "inline": true
+        },
+      ]
+    }
+
+    for (const webhook of webhookUrls) {
+      await fetch(webhook, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          embeds: [embed],
+        })
+      })
+    }
+
+  }
 }

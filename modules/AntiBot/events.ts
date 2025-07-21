@@ -11,8 +11,8 @@ export default class Events {
         min_message_length: 0,
         max_message_length: 1024,
         max_messages_per_user: 25,
-        max_channels_in_window: 3,
-        time_window_seconds: 10,
+        max_channels_in_window: 2,
+        time_window_seconds: 4,
         prevent_spam: [2, 3],
         prevent_toxic: [2, 3]
     }

@@ -21,7 +21,6 @@ import path from 'path';
 import { Github } from '@utils/github';
 import { Color } from '@enums/ColorEnum'
 import db from '@utils/knex.ts';
-import * as process from "node:process";
 import os from 'os';
 
 export default class Events {
@@ -67,10 +66,10 @@ export default class Events {
 				.setColor(Color.AeroBytesBlue)
 				.setTitle('Ik ben opnieuw opgestart!')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${this.client.user?.id}>` },
+					{ name: 'Gebruiker:', value: `<@${this.client.user?.id ?? 'Fout'}>` },
 					{ name: 'Versie:', value: `${currentRelease ? currentRelease : 'Rate limited'}` },
-					{ name: 'Host', value: `${os.hostname()}`},
-					{ name: 'Ping:', value: `${this.client.ws.ping}ms` }
+					{ name: 'Host', value: `${os.hostname() ?? 'Fout'}`},
+					{ name: 'Ping:', value: `${this.client.ws.ping ?? 'Fout'}ms` }
 				)
 				.setThumbnail('attachment://bot.png');
 
@@ -153,7 +152,7 @@ export default class Events {
 
 			// TODO: Temp fix
 			const fields = [
-				{ name: 'Gebruiker', value: `<@${oldMessage.author?.id}>` }
+				{ name: 'Gebruiker', value: `<@${oldMessage.author?.id ?? 'Fout'}>` }
 			];
 
 			if ((oldMessage.content ?? '').length <= 1024) {
@@ -212,7 +211,7 @@ export default class Events {
 								: message.author?.id ?? '10101'
 						}>`
 					},
-					{ name: 'Bericht:', value: message.content },
+					{ name: 'Bericht:', value: `${message.content ?? 'Fout'}` },
 				);
 
 			for (const file of filesToAttach) {
@@ -275,9 +274,9 @@ export default class Events {
 				.setDescription(`Door: <@${user.id}>`)
 				.setThumbnail('attachment://happy-face.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${user.id}>` },
-					{ name: 'Emoji:', value: `${reaction.emoji}` },
-					{ name: 'Bericht:', value: `${reaction.message.url}` }
+					{ name: 'Gebruiker:', value: `<@${user.id} ?? 'Fout'>` },
+					{ name: 'Emoji:', value: `${reaction.emoji ?? 'Fout'}` },
+					{ name: 'Bericht:', value: `${reaction.message.url ?? 'Fout'}` }
 				);
 
 			await this.logChannel.send({ embeds: [messageReactionAddEmbed], files: [this.reactionIcon] });
@@ -291,9 +290,9 @@ export default class Events {
 				.setTitle('Reactie verwijderd')
 				.setThumbnail('attachment://happy-face.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${user.id}>` },
-					{ name: 'Emoji:', value: `${reaction.emoji}` },
-					{ name: 'Bericht:', value: `${reaction.message.url}` }
+					{ name: 'Gebruiker:', value: `<@${user.id ?? 'Fout'}>` },
+					{ name: 'Emoji:', value: `${reaction.emoji ?? 'Fout'}` },
+					{ name: 'Bericht:', value: `${reaction.message.url ?? 'Fout'}` }
 				);
 
 			await this.logChannel.send({ embeds: [messageReactionAddEmbed], files: [this.reactionIcon] });
@@ -317,8 +316,8 @@ export default class Events {
 						.setThumbnail('attachment://microphone.png')
 						.addFields(
 							// @ts-ignore
-							{ name: 'Gebruiker:', value: `<@${newState.member.user.id}>` },
-							{ name: 'Kanaal:', value: `${newState.channel.url}` },
+							{ name: 'Gebruiker:', value: `<@${newState.member.user.id ?? 'Fout'}>` },
+							{ name: 'Kanaal:', value: `${newState.channel.url ?? 'Fout'}` },
 						);
 
 					await this.logChannel.send({ embeds: [voiceChannelEmbed], files: [this.voiceChatIcon] });
@@ -339,8 +338,8 @@ export default class Events {
 						.setThumbnail('attachment://microphone.png')
 						.addFields(
 							// @ts-ignore
-							{ name: 'Gebruiker:', value: `<@${oldState.member.user.id}>` },
-							{ name: 'Kanaal:', value: `${oldState.channel.url}` },
+							{ name: 'Gebruiker:', value: `<@${oldState.member.user.id ?? 'Fout'}>` },
+							{ name: 'Kanaal:', value: `${oldState.channel.url ?? 'Fout'}` },
 						);
 
 					await this.logChannel.send({ embeds: [voiceChannelEmbed], files: [this.voiceChatIcon] });
@@ -360,9 +359,9 @@ export default class Events {
 						.setThumbnail('attachment://microphone.png')
 						.addFields(
 							// @ts-ignore
-							{ name: 'Gebruiker:', value: `<@${oldState.member.user.id}>` },
-							{ name: 'Oud:', value: `${oldState.channel.url}` },
-							{ name: 'Nieuw:', value: `${newState.channel.url}` },
+							{ name: 'Gebruiker:', value: `<@${oldState.member.user.id ?? 'Fout'}>` },
+							{ name: 'Oud:', value: `${oldState.channel.url ?? 'Fout'}` },
+							{ name: 'Nieuw:', value: `${newState.channel.url ?? 'Fout'}` },
 						);
 
 					await this.logChannel.send({ embeds: [voiceChannelEmbed], files: [this.voiceChatIcon] });
@@ -389,8 +388,8 @@ export default class Events {
 				.setTitle('Lid verlaten')
 				.setThumbnail('attachment://user.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${member.id}>` },
-					{ name: 'Lid sinds:', value: `${(member.joinedAt?.toLocaleString('nl-NL')) }` },
+					{ name: 'Gebruiker:', value: `<@${member.id ?? 'Fout'}>` },
+					{ name: 'Lid sinds:', value: `${(member.joinedAt?.toLocaleString('nl-NL') ?? 'Fout') }` },
 				);
 
 			await this.logChannel.send({ embeds: [memberEventEmbed], files: [this.userIcon] });
@@ -416,7 +415,7 @@ export default class Events {
 				.setTitle('Lid gebanned')
 				.setThumbnail('attachment://moderation.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${ban.user.id}>` },
+					{ name: 'Gebruiker:', value: `<@${ban.user.id ?? 'Fout'}>` },
 					{ name: 'Reden:', value: `${fetchBan.reason ?? 'Geen reden opgegeven'}` },
 					{ name: 'Door:', value: executor ? `${executor.username} (<@${executor.id}>)` : 'Onbekend' },
 				);
@@ -443,7 +442,7 @@ export default class Events {
 				.setTitle('Lid unbanned')
 				.setThumbnail('attachment://moderation.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${unBan.user.id}>` },
+					{ name: 'Gebruiker:', value: `<@${unBan.user.id ?? 'Fout'}>` },
 					{ name: 'Door:', value: executor ? `${executor.username} (<@${executor.id}>)` : 'Onbekend' },
 				)
 
@@ -460,7 +459,7 @@ export default class Events {
 				.setTitle('Lid gebruikersnaam update')
 				.setThumbnail('attachment://user.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${newMember.user.id}>` },
+					{ name: 'Gebruiker:', value: `<@${newMember.user.id ?? 'Fout'}>` },
 					{ name: 'Oud:', value: `${oldMember.displayName ?? 'Niet gevonden'}` },
 					{ name: 'Nieuw:', value: `${newMember.displayName ?? 'Niet gevonden'}` },
 				);
