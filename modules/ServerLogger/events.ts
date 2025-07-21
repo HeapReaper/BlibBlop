@@ -22,6 +22,7 @@ import { Github } from '@utils/github';
 import { Color } from '@enums/ColorEnum'
 import db from '@utils/knex.ts';
 import os from 'os';
+import { insertMessage } from "@utils/clickhouse.ts";
 
 export default class Events {
 	private client: Client;
@@ -94,22 +95,7 @@ export default class Events {
 			Logging.info('Caching message');
 
 			try {
-				await db('messages').insert({
-					id: message.id,
-					channel_id: message.channel.id,
-					guild_id: message.guild?.id,
-					author_id: message.author.id,
-					content: message.content,
-					created_at: message.createdAt,
-					attachments: JSON.stringify(
-						message.attachments.map(attachment => ({
-							url: attachment.url,
-							name: attachment.name,
-							contentType: attachment.contentType,
-							s3Key: `serverLogger/${message.id}-${attachment.name}`,
-						})),
-					)
-				})
+				await insertMessage(message);
 			} catch (error) {
 				Logging.error(`Error while trying to cache message inside server logger: ${error}`);
 			}
@@ -162,7 +148,6 @@ export default class Events {
 			if ((newMessage.content ?? '').length <= 1024) {
 				fields.push({ name: 'Nieuw:', value: newMessage.content ?? 'Er ging wat fout' });
 			}
-
 
 			const messageUpdateEmbed: any = new EmbedBuilder()
 				.setColor(Color.Orange)
@@ -263,10 +248,18 @@ export default class Events {
 	 * @return void
 	 */
 	reactionEvents(): void {
-		this.client.on('messageReactionAdd', async (reaction, user) => {
+		this.client.on(discordEvents.MessageReactionAdd, async (reaction, user) => {
 			if (user.id === this.client.user?.id || user.bot) return;
 
-            Logging.info('Reaction added to message!');
+			if (reaction.partial) {
+				try {
+					await reaction.fetch();
+				} catch (err) {
+					Logging.warn(`Failed to fetch reaction: ${err}`);
+				}
+			}
+
+			Logging.info('Reaction added to message!');
 
 			const messageReactionAddEmbed: EmbedBuilder = new EmbedBuilder()
 				.setColor(Color.Green)
@@ -282,7 +275,7 @@ export default class Events {
 			await this.logChannel.send({ embeds: [messageReactionAddEmbed], files: [this.reactionIcon] });
 		});
 
-		this.client.on('messageReactionRemove', async (reaction, user) => {
+		this.client.on(discordEvents.MessageReactionRemove, async (reaction, user) => {
 			Logging.info('Reaction removed to message!');
 
 			const messageReactionAddEmbed: EmbedBuilder = new EmbedBuilder()

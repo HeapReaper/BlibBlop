@@ -1,13 +1,8 @@
-import {
-	Client,
-	GatewayIntentBits,
-	ActivityType,
-	Partials,
-} from 'discord.js';
+import {ActivityType, Client, GatewayIntentBits, Partials,} from 'discord.js';
 import loadModules from '@utils/moduleLoader';
-import { Logging } from '@utils/logging';
-import { getEnv } from '@utils/env';
-import { runMigrations } from '@utils/migrations.ts';
+import {Logging} from '@utils/logging';
+import {getEnv} from '@utils/env';
+import {runMigrations} from '@utils/migrations.ts';
 import QueryBuilder from '@utils/database.ts';
 import * as process from "node:process";
 import S3OperationBuilder from "@utils/s3.ts";
@@ -24,7 +19,8 @@ const client = new Client({
 	partials: [
 		Partials.Message,
 		Partials.Channel,
-		Partials.Reaction
+		Partials.Reaction,
+		Partials.User,
 	],
 });
 
