@@ -17,12 +17,13 @@ import {
 import { Logging } from '@utils/logging.ts';
 import { getEnv } from '@utils/env.ts';
 import S3OperationBuilder from '@utils/s3';
+import QueryBuilder from '@utils/database.ts';
 import path from 'path';
 import { Github } from '@utils/github';
 import { Color } from '@enums/ColorEnum'
 import db from '@utils/knex.ts';
 import os from 'os';
-import { insertMessage } from "@utils/clickhouse.ts";
+import { insertMessage, isClickhouseOnline } from '@utils/clickhouse.ts';
 
 export default class Events {
 	private client: Client;
@@ -53,6 +54,9 @@ export default class Events {
 	async bootEvent(): Promise<void> {
 		try {
 			const currentRelease: string | null = await Github.getCurrentRelease();
+			const mariaDB = await QueryBuilder.isOnline() ? '✅ Online' : '❌ Offline';
+			const s3 = (await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status()).up ? '✅ Online' : '❌ Offline';
+			const clickHouse = await isClickhouseOnline() ? '✅ Online' : '❌ Offline';
 
 			await new Promise<void>(resolve => {
 				const interval = setInterval((): void => {
@@ -67,10 +71,13 @@ export default class Events {
 				.setColor(Color.AeroBytesBlue)
 				.setTitle('Ik ben opnieuw opgestart!')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${this.client.user?.id ?? 'Fout'}>` },
-					{ name: 'Versie:', value: `${currentRelease ? currentRelease : 'Rate limited'}` },
-					{ name: 'Host', value: `${os.hostname() ?? 'Fout'}`},
-					{ name: 'Ping:', value: `${this.client.ws.ping ?? 'Fout'}ms` }
+					{ name: 'Gebruiker:', value: `<@${this.client.user?.id ?? 'Fout'}>`, inline: true  },
+					{ name: 'Versie:', value: `${currentRelease ? currentRelease : 'Rate limited'}`, inline: true  },
+					{ name: 'Host', value: `${os.hostname() ?? 'Fout'}`, inline: true },
+					{ name: 'Ping:', value: `${this.client.ws.ping ?? 'Fout'}ms`, inline: true  },
+					{ name: 'MariaDB', value: mariaDB, inline: true  },
+					{ name: 'S3', value: s3, inline: true  },
+					{ name: 'ClickHouse', value: clickHouse, inline: true },
 				)
 				.setThumbnail('attachment://bot.png');
 
