@@ -20,6 +20,12 @@ export default class BumpReminderTasks {
 		try {
 			setInterval(async () => {
 				Logging.debug('Checking if the server can be bumped again!');
+
+				if (!this.bumpChannel) {
+					Logging.warn('bumpChannel is undefined!');
+					return;
+				}
+
 				const messages = this.bumpChannel.messages.fetch({limit: 20});
 
 				messages.then(async messages => {
