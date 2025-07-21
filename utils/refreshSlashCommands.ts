@@ -25,7 +25,7 @@ async function commandsLoader() {
             const commandsFromModule: any = await import(path.resolve(modulePath));
 
             if (!commandsFromModule.commands) {
-                Logging.error(`No commands exported from ${modulePath}`);
+                Logging.warn(`No commands exported from ${modulePath}`);
                 continue;
             }
 
@@ -35,7 +35,7 @@ async function commandsLoader() {
 
             Logging.info(`Successfully prepared commands for module: ${module}`);
         } catch (error) {
-            Logging.error(`Failed to load commands for module: ${module} - ${error}`);
+            Logging.warn(`Failed to load commands for module: ${module} - ${error}`);
         }
     }
 
