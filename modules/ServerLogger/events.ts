@@ -349,8 +349,10 @@ export default class Events {
 			}
 
 			try {
-				// If user changes voice channel
-				if (oldState.channel && newState.channel) {
+				// If a user changes voice channel
+				if (oldState.channel !== newState.channel) {
+					if (!oldState.channel || !newState.channel) return;
+
 					Logging.info('A user changed VC');
 
 					const voiceChannelEmbed: EmbedBuilder = new EmbedBuilder()
@@ -358,8 +360,7 @@ export default class Events {
 						.setTitle('Voice kanaal veranderd')
 						.setThumbnail('attachment://microphone.png')
 						.addFields(
-							// @ts-ignore
-							{ name: 'Gebruiker:', value: `<@${oldState.member.user.id ?? 'Fout'}>` },
+							{ name: 'Gebruiker:', value: `<@${oldState.member?.user.id ?? 'Fout' }>` },
 							{ name: 'Oud:', value: `${oldState.channel.url ?? 'Fout'}` },
 							{ name: 'Nieuw:', value: `${newState.channel.url ?? 'Fout'}` },
 						);
