@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@clickhouse/client": "^1.11.2",
     "@heapreaper/discordfaker": "^1.1.9",
     "bun": "^1.2.13",
     "chalk": "^5.4.1",
