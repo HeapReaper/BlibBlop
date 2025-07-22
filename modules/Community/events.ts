@@ -38,7 +38,6 @@ export default class Events {
     constructor(client: Client) {
         this.client = client;
         void this.sendWelcomeMessage();
-        void this.onPhotoContestMessage();
         void this.sendLeaveMessage();
     }
 
@@ -84,52 +83,5 @@ export default class Events {
             const goodbyeMessage: string = this.goodbyeMessages[Math.floor(Math.random() * this.goodbyeMessages.length)];
             await channel.send(goodbyeMessage.replace(/{user}/g, `<@${member.user.id}>`));
         });
-    }
-
-    async onPhotoContestMessage() {
-        this.client.on(DiscordEvents.MessageCreate, async (message) => {
-            try {
-                if (message.author.id === this.client.user?.id || message.author.bot) return;
-
-                if (message.channel.id !== getEnv('PHOTO_CONTEST')) return;
-
-                if (message.attachments.size === 0 || message.attachments.size > 1) {
-                    return await message.delete();
-                }
-
-                if (message.content.length > 30) return await message.delete();
-
-                const photoContestCh = await this.client.channels.fetch(getEnv('PHOTO_CONTEST') as string) as TextChannel;
-                const messages = await photoContestCh.messages.fetch({ limit: 30 });
-                const todayAuthorMessages = messages.filter((message) =>
-                  this.isToday(message.createdAt) && message.author.id === message.author.id
-                );
-
-                if (todayAuthorMessages.size > 1) {
-                    await message.delete();
-                }
-
-                const notification = await photoContestCh.send({
-                    content:
-                      'Regels: 1 foto per dag.\nKorte tekst toegestaan.\nChat reacties zijn niet toegestaan.\n' +
-                      'Foto moet RC gerelateerd zijn\nGeen hergebruik.\n' +
-                      'Geen collages of bewerkte afbeeldingen.\n' +
-                      'Alles wordt automatisch verwijderd door de bot als bovenstaande niet aan gehouden wordt.',
-                })
-
-                setTimeout(() => {
-                    notification.delete();
-                }, 5000)
-            } catch (error) {
-                Logging.error(`Error inside "onPhotoContestMessage": ${error}`);
-            }
-        })
-    }
-
-    isToday(createdAt: Date) {
-        const now = new Date();
-        return createdAt.getDate() === now.getDate() &&
-          createdAt.getMonth() === now.getMonth() &&
-          createdAt.getFullYear() === now.getFullYear();
     }
 }
