@@ -283,7 +283,7 @@ export default class Events {
 		});
 
 		this.client.on(discordEvents.MessageReactionRemove, async (reaction, user) => {
-			Logging.info('Reaction removed to message!');
+			Logging.info('Reaction removed from message!');
 
 			const messageReactionAddEmbed: EmbedBuilder = new EmbedBuilder()
 				.setColor(Color.Orange)
