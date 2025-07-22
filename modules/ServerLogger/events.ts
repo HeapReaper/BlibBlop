@@ -41,7 +41,7 @@ export default class Events {
 		this.botIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/bot.png`);
 		this.chatIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/chat.png`);
 		this.voiceChatIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/microphone.png`);
-		this.reactionIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/happy-face.png`);
+		this.reactionIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/happy-face-blue.png`);
 		this.userIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/user.png`);
 		this.moderationIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/moderation.png`);
 		void this.bootEvent();
@@ -272,7 +272,7 @@ export default class Events {
 				.setColor(Color.Green)
 				.setTitle('Reactie toegevoegd')
 				.setDescription(`Door: <@${user.id}>`)
-				.setThumbnail('attachment://happy-face.png')
+				.setThumbnail('attachment://happy-face-blue.png')
 				.addFields(
 					{ name: 'Gebruiker:', value: `<@${user.id} ?? 'Fout'>` },
 					{ name: 'Emoji:', value: `${reaction.emoji ?? 'Fout'}` },
@@ -288,7 +288,7 @@ export default class Events {
 			const messageReactionAddEmbed: EmbedBuilder = new EmbedBuilder()
 				.setColor(Color.Orange)
 				.setTitle('Reactie verwijderd')
-				.setThumbnail('attachment://happy-face.png')
+				.setThumbnail('attachment://happy-face-blue.png')
 				.addFields(
 					{ name: 'Gebruiker:', value: `<@${user.id ?? 'Fout'}>` },
 					{ name: 'Emoji:', value: `${reaction.emoji ?? 'Fout'}` },
