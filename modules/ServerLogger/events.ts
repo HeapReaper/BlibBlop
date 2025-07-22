@@ -274,7 +274,7 @@ export default class Events {
 				.setDescription(`Door: <@${user.id}>`)
 				.setThumbnail('attachment://happy-face-blue.png')
 				.addFields(
-					{ name: 'Gebruiker:', value: `<@${user.id} ?? 'Fout'>` },
+					{ name: 'Gebruiker:', value: `<@${user.id ?? 'Fout'}>` },
 					{ name: 'Emoji:', value: `${reaction.emoji ?? 'Fout'}` },
 					{ name: 'Bericht:', value: `${reaction.message.url ?? 'Fout'}` }
 				);
