@@ -148,7 +148,7 @@ export default class Events {
 				{ name: 'Gebruiker', value: `<@${oldMessage.author?.id ?? 'Fout'}>` }
 			];
 
-			if ((oldMessage.content ?? '').length <= 1024) {
+			if ((oldMessage.content ?? ``).length <= 1024) {
 				fields.push({ name: 'Oud:', value: oldMessage.content ?? 'Er ging wat fout' });
 			}
 
@@ -169,15 +169,24 @@ export default class Events {
 		this.client.on(discordEvents.MessageDelete, async (message: Message): Promise<void> => {
 			Logging.debug('An message has been deleted!');
 
+			if (!message.guild) return;
+
+			const fetchedLogs = await message.guild.fetchAuditLogs({
+				limit: 1,
+				type: AuditLogEvent.MessageDelete,
+			});
+
+			const deletionLog = fetchedLogs.entries.first();
+
 			const allS3Files = await S3OperationBuilder
 				.setBucket(<string>getEnv('S3_BUCKET_NAME'))
 				.listObjects();
 
 			const messageFromDbCache = await db('messages')
-				.where({id: message.id})
+				.where({ id: message.id })
 				.first();
 
-			Logging.debug(`${messageFromDbCache}`)
+			Logging.debug(`${messageFromDbCache}`);
 
 			if (!allS3Files.success) {
 				Logging.warn('Failed to list S3 objects. Skipping attachment restoration.');
@@ -190,7 +199,7 @@ export default class Events {
 
 			const attachments: AttachmentBuilder[] = [];
 
-			const messageDelete: any = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor(Color.Red)
 				.setTitle('Bericht verwijderd')
 				.setThumbnail('attachment://chat.png')
@@ -199,12 +208,25 @@ export default class Events {
 						name: 'Gebruiker',
 						value: `<@${
 							message.partial
-								? (messageFromDbCache && messageFromDbCache.author_id ? messageFromDbCache.author_id : '10101')
-								: message.author?.id ?? '10101'
-						}>`
+								? (messageFromDbCache?.author_id ?? 'Onbekend')
+								: message.author?.id ?? 'Onbekend'
+						}>`,
 					},
-					{ name: 'Bericht:', value: `${message.content ?? 'Fout'}` },
+					{ name: 'Bericht:', value: message.content || 'Geen inhoud' }
 				);
+
+			if (deletionLog && message.author && deletionLog.target?.id === message.author.id) {
+				console.log('debug 1')
+				const executor = deletionLog.executor;
+
+				if (executor && executor.id !== message.author.id) {
+					console.log('debug 2')
+					embed.addFields({
+						name: 'Door',
+						value: `<@${executor.id}>`,
+					});
+				}
+			}
 
 			for (const file of filesToAttach) {
 				const url = await S3OperationBuilder
@@ -219,11 +241,11 @@ export default class Events {
 				attachments.push(new AttachmentBuilder(buffer, { name: filename }));
 			}
 
-			await this.logChannel.send({ embeds: [messageDelete], files: [this.chatIcon] });
+			await this.logChannel.send({ embeds: [embed], files: [this.chatIcon] });
 
-			if (attachments.length === 0) return;
-
-			await this.logChannel.send({ files: attachments });
+			if (attachments.length > 0) {
+				await this.logChannel.send({ files: attachments });
+			}
 		});
 
 		// @ts-ignore
@@ -271,7 +293,6 @@ export default class Events {
 			const messageReactionAddEmbed: EmbedBuilder = new EmbedBuilder()
 				.setColor(Color.Green)
 				.setTitle('Reactie toegevoegd')
-				.setDescription(`Door: <@${user.id}>`)
 				.setThumbnail('attachment://happy-face-blue.png')
 				.addFields(
 					{ name: 'Gebruiker:', value: `<@${user.id ?? 'Fout'}>` },
