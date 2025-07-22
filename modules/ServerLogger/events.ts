@@ -215,12 +215,16 @@ export default class Events {
 					{ name: 'Bericht:', value: message.content || 'Geen inhoud' }
 				);
 
-			if (deletionLog && message.author && deletionLog.target?.id === message.author.id) {
-				console.log('debug 1')
+			// Voeg "Door" toe als iemand anders het heeft verwijderd
+			if (
+				deletionLog &&
+				message.author &&
+				deletionLog.target?.id === message.author.id &&
+				Date.now() - deletionLog.createdTimestamp < 5000 // recent
+			) {
 				const executor = deletionLog.executor;
 
 				if (executor && executor.id !== message.author.id) {
-					console.log('debug 2')
 					embed.addFields({
 						name: 'Door',
 						value: `<@${executor.id}>`,
