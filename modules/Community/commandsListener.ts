@@ -18,8 +18,6 @@ export default class CommandsListener {
 
 			const { commandName } = interaction;
 
-			console.log(commandName)
-
 			if (commandName === 'blip') {
 				await interaction.reply(this.funnyBlipResponse[Math.floor(Math.random() * this.funnyBlipResponse.length)]);
 			}
