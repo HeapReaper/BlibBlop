@@ -11,6 +11,16 @@ export default class CommandsListener {
 	}
 	
 	async commandsListener(): Promise<void> {
-		//
+		this.client.on(Events.InteractionCreate, async (interaction) => {
+			if (!interaction.isCommand()) return;
+
+			const { commandName } = interaction;
+
+			console.log(commandName)
+
+			if (commandName === 'blip') {
+				await interaction.reply('Blob!');
+			}
+		})
 	}
 }
