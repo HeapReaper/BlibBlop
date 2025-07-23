@@ -7,7 +7,7 @@ import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 import { isBot } from '@utils/isBot';
 import QueryBuilder from '@utils/database';
-import {externalLogToServer} from '../ServerLogger/events';
+import { externalLogToServer } from '../ServerLogger/events';
 
 export default class Events {
     private client: Client;
