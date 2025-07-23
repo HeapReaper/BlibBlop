@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS votes (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    vote_name varchar (200) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     message_id VARCHAR(255) NOT NULL,
     channel_id VARCHAR(255) NOT NULL,

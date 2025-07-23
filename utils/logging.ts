@@ -36,7 +36,7 @@ export class Logging {
 	}
 
 	static debug(message: string | number): void {
-		if (getEnv('ENVIRONMENT') !== 'debug') return;
+		if (getEnv('ENVIRONMENT') !== 'debug' && getEnv('ENVIRONMENT') !== 'development') return;
 
 		console.log(`[${this.formatDate(this.now())}] [${chalk.blue('DEBUG')}] ${message}`);
 

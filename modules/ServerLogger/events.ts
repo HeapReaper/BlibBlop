@@ -25,6 +25,14 @@ import db from '@utils/knex.ts';
 import os from 'os';
 import { insertMessage, isClickhouseOnline } from '@utils/clickhouse.ts';
 
+export async function externalLogToServer(message: string, client: Client) {
+	const logChannel = client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
+
+	await logChannel.send({
+		content: message
+	})
+}
+
 export default class Events {
 	private client: Client;
 	private logChannel: any;

@@ -7,6 +7,7 @@ import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 import { isBot } from '@utils/isBot';
 import QueryBuilder from '@utils/database';
+import {externalLogToServer} from '../ServerLogger/events';
 
 export default class Events {
     private client: Client;
@@ -14,6 +15,7 @@ export default class Events {
     constructor(client: Client) {
         this.client = client;
         void this.onPhotoContestMessage();
+        void this.onPhotoContestReaction();
     }
 
     async onPhotoContestMessage() {
@@ -45,17 +47,112 @@ export default class Events {
 
                 Logging.info('A new photo contest image has been approved!');
 
-                await QueryBuilder
-                  .insert('votes')
-                  .values({
-                        userId
-                  })
-
                 await message.react('🔥');
             } catch (error) {
                 Logging.error(`Error inside onPhotoContestMessage: ${error}`);
             }
         });
+    }
+
+    async onPhotoContestReaction() {
+        this.client.on(DiscordEvents.MessageReactionAdd, async (reaction, user) => {
+            try {
+                if (isBot(user, this.client)) return;
+
+                if (reaction.emoji.name !== '🔥') return;
+
+                if (reaction.partial) {
+                    reaction = await reaction.fetch();
+                }
+
+                if (reaction.message.partial) {
+                    await reaction.message.fetch();
+                }
+
+                if (reaction.message.channel.id !== getEnv('PHOTO_CONTEST')) return;
+
+                // @ts-ignore
+                if (reaction.message.author.id == this.client.user.id) {
+                    await reaction.users.remove(user.id);
+                    await externalLogToServer(
+                      `Een stem verwijderd van <@${user.id ?? '0000'}> die in foto-wedstrijd een reactie op de bot plaatste`,
+                      this.client
+                    );
+                    Logging.info(`Removed reaction of someone who tried voting on the bot!`)
+                    return;
+                }
+
+                // @ts-ignore
+                if (reaction.message.author.id == user.id) {
+                    await reaction.users.remove(user.id);
+                    await externalLogToServer(
+                      `Een stem verwijderd van <@${user.id ?? '0000'}> die op zijn eigen bericht wou stemmen.`,
+                      this.client
+                    );
+                    Logging.info(`Removed reaction of someone who tried voting on himself!`)
+                    return;
+                }
+
+                const currVotes = await QueryBuilder
+                  .raw(`
+                        SELECT
+                            count(*) as cnt
+                        FROM votes
+                        WHERE vote_name = 'foto-wedstrijd'
+                          AND user_id = '${user.id}'
+                          AND YEAR(created_at) = YEAR(CURDATE())
+                          AND MONTH(created_at) = MONTH(CURDATE());`)
+                  .execute();
+
+                if (currVotes[0].cnt > 2) {
+                    await reaction.users.remove(user.id);
+                    await externalLogToServer(
+                      `Een stem verwijderd van <@${user.id ?? '0000'}> die deze maand al gestemd had!`,
+                      this.client
+                    );
+                    Logging.info(`Removed a reaction from a user that already voted today!`)
+                }
+
+                if (reaction.message.channel.id !== getEnv('PHOTO_CONTEST')) return;
+
+                await QueryBuilder
+                  .insert('votes')
+                  .values({
+                      vote_name: 'foto-wedstrijd',
+                      user_id: user.id,
+                      message_id: reaction.message.id,
+                      channel_id: reaction.message.channel.id
+                  })
+                  .execute();
+                Logging.info(`Added vote to the DB`);
+            } catch (error) {
+                Logging.error(`Error inside onPhotoContestReaction: ${error}`);
+            }
+        })
+
+        this.client.on(DiscordEvents.MessageReactionRemove, async (reaction, user) => {
+            try {
+                if (isBot(user, this.client)) return;
+
+                if (reaction.partial) await reaction.fetch();
+
+                if (reaction.emoji.name !== '🔥') return;
+
+                if (reaction.message.channel.id !== getEnv('PHOTO_CONTEST')) return;
+
+                await QueryBuilder
+                  .delete('votes')
+                  .where({
+                      user_id: user.id,
+                      message_id: reaction.message.id,
+                  })
+                  .execute();
+
+                Logging.info(`Removed vote from the DB`);
+            } catch (error) {
+                Logging.error(`Error inside onPhotoContestReaction: ${error}`);
+            }
+        })
     }
 
     ifIsToday(createdAt: Date) {
