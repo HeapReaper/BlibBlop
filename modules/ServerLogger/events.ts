@@ -36,6 +36,7 @@ export async function externalLogToServer(message: string, client: Client) {
 export default class Events {
 	private client: Client;
 	private logChannel: any;
+	private automationChannel: any;
 	private botIcon: AttachmentBuilder;
 	private chatIcon: AttachmentBuilder;
 	private voiceChatIcon: AttachmentBuilder;
@@ -46,6 +47,7 @@ export default class Events {
 	constructor(client: Client) {
 		this.client = client;
 		this.logChannel = this.client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
+		this.automationChannel = this.client.channels.cache.get(<string>getEnv('AUTOMATION')) as TextChannel;
 		this.botIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/bot.png`);
 		this.chatIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/chat.png`);
 		this.voiceChatIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/microphone.png`);
@@ -64,6 +66,7 @@ export default class Events {
 
 		try {
 			const currentRelease: string | null = await Github.getCurrentRelease();
+			const latestCommit = await Github.getLatestCommit();
 			const mariaDB = await QueryBuilder.isOnline() ? '✅ Online' : '❌ Offline';
 			const s3 = (await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status()).up ? '✅ Online' : '❌ Offline';
 			const clickHouse = await isClickhouseOnline() ? '✅ Online' : '❌ Offline';
@@ -83,6 +86,7 @@ export default class Events {
 				.addFields(
 					{ name: 'Gebruiker:', value: `<@${this.client.user?.id ?? 'Fout'}>`, inline: true  },
 					{ name: 'Versie:', value: `${currentRelease ? currentRelease : 'Rate limited'}`, inline: true  },
+					{ name: 'Commit:', value: `[${latestCommit!.sha.substring(0, 7)}](${latestCommit!.url})`, inline: true },
 					{ name: 'Host', value: `${os.hostname() ?? 'Fout'}`, inline: true },
 					{ name: 'Ping:', value: `${this.client.ws.ping ?? 'Fout'}ms`, inline: true  },
 					{ name: 'MariaDB', value: mariaDB, inline: true  },
@@ -92,6 +96,8 @@ export default class Events {
 				.setThumbnail('attachment://bot.png');
 
 			await this.logChannel.send({ embeds: [bootEmbed], files: [this.botIcon] });
+			await this.automationChannel.send({ embeds: [bootEmbed], files: [this.botIcon] });
+
 		} catch (error) {
 			Logging.error(`Error in bootEvent serverLogger: ${error}`);
 		}
