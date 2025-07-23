@@ -46,7 +46,9 @@ export class Logging {
 	}
 
 	static trace(message: string | number): void {
-		if (getEnv('ENVIRONMENT') !== 'trace' && getEnv('ENVIRONMENT') !== 'debug') return;
+		if (getEnv('ENVIRONMENT') !== 'trace'
+			  && getEnv('ENVIRONMENT') !== 'debug'
+			  &&getEnv('ENVIRONMENT') !== 'development') return;
 
 		console.log(`[${this.formatDate(this.now())}] [${chalk.grey('TRACE')}] ${message}`);
 
@@ -61,6 +63,8 @@ export class Logging {
 	}
 
 	private static async sendLogToDiscord(error: string | number): Promise<void> {
+		if (getEnv('ENVIRONMENT') === 'development') return;
+
 		const webhookURL: string = <string>getEnv('LOG_DISCORD_WEBHOOK');
 
 		if (!webhookURL) {

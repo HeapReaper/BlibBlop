@@ -52,6 +52,8 @@ export default class Events {
 	}
 
 	async bootEvent(): Promise<void> {
+		if (getEnv('ENVIRONMENT') as string === 'development') return;
+
 		try {
 			const currentRelease: string | null = await Github.getCurrentRelease();
 			const mariaDB = await QueryBuilder.isOnline() ? '✅ Online' : '❌ Offline';

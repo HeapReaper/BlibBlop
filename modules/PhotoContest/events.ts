@@ -3,8 +3,10 @@ import {
     TextChannel,
     Events as DiscordEvents
 } from 'discord.js';
-import {getEnv} from '@utils/env';
-import {Logging} from '@utils/logging';
+import { getEnv } from '@utils/env';
+import { Logging } from '@utils/logging';
+import { isBot } from '@utils/isBot';
+import QueryBuilder from '@utils/database';
 
 export default class Events {
     private client: Client;
@@ -17,14 +19,14 @@ export default class Events {
     async onPhotoContestMessage() {
         this.client.on(DiscordEvents.MessageCreate, async (message) => {
             try {
-                if (message.author.id === this.client.user?.id || message.author.bot) return;
+                if (isBot(message.author, this.client)) return;
 
                 if (message.channel.id !== getEnv('PHOTO_CONTEST')) return;
 
                 const photoContestCh = await this.client.channels.fetch(getEnv('PHOTO_CONTEST') as string) as TextChannel;
                 const messages = await photoContestCh.messages.fetch({ limit: 30 });
                 const todayAuthorMessages = messages.filter((message) =>
-                  this.isToday(message.createdAt) && message.author.id === message.author.id
+                  this.ifIsToday(message.createdAt) && message.author.id === message.author.id
                 );
 
                 if (message.attachments.size === 0 || message.attachments.size > 1) {
@@ -43,6 +45,12 @@ export default class Events {
 
                 Logging.info('A new photo contest image has been approved!');
 
+                await QueryBuilder
+                  .insert('votes')
+                  .values({
+                        userId
+                  })
+
                 await message.react('🔥');
             } catch (error) {
                 Logging.error(`Error inside onPhotoContestMessage: ${error}`);
@@ -50,7 +58,7 @@ export default class Events {
         });
     }
 
-    isToday(createdAt: Date) {
+    ifIsToday(createdAt: Date) {
         const now = new Date();
         return createdAt.getDate() === now.getDate() &&
           createdAt.getMonth() === now.getMonth() &&
