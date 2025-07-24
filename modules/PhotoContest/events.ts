@@ -32,15 +32,19 @@ export default class Events {
                 );
 
                 if (message.attachments.size === 0 || message.attachments.size > 1) {
+                    Logging.info('Denied a photo contest post: To many images');
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh);
                 }
 
                 if (message.content.length > 30) {
+                    Logging.info('Denied a photo contest post: To long of a message');
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh);
                 }
                 if (todayAuthorMessages.size > 1) {
+                    Logging.info('Denied a photo contest post: Author already posted a message today');
+
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh);
                 }
