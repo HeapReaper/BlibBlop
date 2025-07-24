@@ -27,24 +27,37 @@ export default class Events {
 
                 const photoContestCh = await this.client.channels.fetch(getEnv('PHOTO_CONTEST') as string) as TextChannel;
                 const messages = await photoContestCh.messages.fetch({ limit: 30 });
-                const todayAuthorMessages = messages.filter((message) =>
-                  this.ifIsToday(message.createdAt) && message.author.id === message.author.id
+                const todayAuthorMessages = messages.filter(
+                  (msg) =>
+                    this.ifIsToday(msg.createdAt) &&
+                    msg.author.id === message.author.id &&
+                    msg.channelId === message.channelId
                 );
-
                 if (message.attachments.size === 0 || message.attachments.size > 1) {
                     Logging.info('Denied a photo contest post: To many images');
+                    await externalLogToServer(
+                      `Ik verwijderde een foto wedstrijd post van <@${message.author.id}: Meer dan 1 afbeelding in het bericht`,
+                      this.client
+                    );
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh);
                 }
 
                 if (message.content.length > 30) {
                     Logging.info('Denied a photo contest post: To long of a message');
+                    await externalLogToServer(
+                      `Ik verwijderde een foto wedstrijd post van <@${message.author.id}>: Tekst boven de 30 tekens`,
+                      this.client
+                    );
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh);
                 }
                 if (todayAuthorMessages.size > 1) {
                     Logging.info('Denied a photo contest post: Author already posted a message today');
-
+                    await externalLogToServer(
+                      `Ik verwijderde een foto wedstrijd post van <@${message.author.id}>: Heeft al een bericht geplaatst vandaag`,
+                      this.client
+                    );
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh);
                 }
