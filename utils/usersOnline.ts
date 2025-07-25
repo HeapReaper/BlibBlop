@@ -9,11 +9,11 @@ export const userStatussen: Record<string, {
 
 export async function usersOnline(client: any): Promise<void> {
   try {
-    const guild = await client.guilds.fetch('1350811442856726559');
+    const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
 
     const now = new Date();
     const formattedTime = formatDate(now.toISOString());
-    const userIds = "632677231113666601,321272615052378113,1350816171741417563";
+    const userIds = getEnv('USER_IDS') as string;
 
     for (const userId of userIds.split(',') || []) {
       Logging.debug(`${userId}`);
@@ -27,7 +27,7 @@ export async function usersOnline(client: any): Promise<void> {
           lastChecked: formattedTime,
         };
       } catch (err) {
-        Logging.error(`Error fetching member ${userId}: ${err}`,);
+        Logging.warn(`Error fetching member ${userId}: ${err}`,);
         userStatussen[userId] = {
           userId: `${userId}`,
           status: 'error',
@@ -37,10 +37,9 @@ export async function usersOnline(client: any): Promise<void> {
     }
 
   } catch (err) {
-    console.error('Error fetching guild:', err);
+    console.warn('Error fetching guild:', err);
   }
 }
-
 
 function formatDate(isoString: string): string {
   const d = new Date(isoString);

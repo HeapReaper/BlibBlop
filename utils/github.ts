@@ -16,7 +16,7 @@ export class Github {
         );
 
         if (!response.ok) {
-            Logging.error(`Error fetching repo in bootEvent: ${response.status}`)
+            Logging.warn(`Error fetching repo in bootEvent: ${response.status}`)
             return null;
         }
 
@@ -34,7 +34,7 @@ export class Github {
         );
 
         if (!response.ok) {
-            Logging.error(`Error fetching latest commit: ${response.status}`);
+            Logging.warn(`Error fetching latest commit: ${response.status}`);
             return null;
         }
 
