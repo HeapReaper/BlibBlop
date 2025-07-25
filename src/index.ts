@@ -1,16 +1,20 @@
-import {ActivityType, Client, GatewayIntentBits, Partials,} from 'discord.js';
+import {Client, GatewayIntentBits, Partials,} from 'discord.js';
 import loadModules from '@utils/moduleLoader';
 import {Logging} from '@utils/logging';
 import {getEnv} from '@utils/env';
 import {runMigrations} from '@utils/migrations.ts';
 import QueryBuilder from '@utils/database.ts';
-import * as process from "node:process";
-import S3OperationBuilder from "@utils/s3.ts";
+import * as process from 'node:process';
+// @ts-ignore
+import express from 'express';
+import cron from 'node-cron';
+import { userStatussen, usersOnline } from '@utils/usersOnline';
 
 const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildPresences,
 		GatewayIntentBits.GuildMessageReactions,
 		GatewayIntentBits.DirectMessageReactions,
 		GatewayIntentBits.MessageContent,
@@ -25,8 +29,21 @@ const client = new Client({
 	],
 });
 
+const webApp = express();
+const PORT = 3144;
+
+webApp.get('/user-statussen', (req: any, res: any) => {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.json(userStatussen);
+});
+
+webApp.listen(PORT, () => {
+	console.log(`Web server running at http://localhost:${PORT}`);
+});
+
+
 client.on('ready', async client => {
-	console.log(await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status())
+	await usersOnline(client);
 
 	try {
 		await loadModules(client);
@@ -59,6 +76,10 @@ client.on('ready', async client => {
 	});
 	
 	Logging.info(`Client ready! Signed in as ${client.user.tag}!`);
+})
+
+cron.schedule('* * * * *', async (): Promise<void> => {
+	await usersOnline(client);
 })
 
 void client.login(getEnv('DISCORD_TOKEN'));
