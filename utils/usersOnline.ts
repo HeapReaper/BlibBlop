@@ -1,35 +1,35 @@
 import {getEnv} from "@utils/env.ts";
+import {Logging} from "@utils/logging.ts";
 
 export const userStatussen: Record<string, {
-  username: string,
+  userId: string,
   status: string,
   lastChecked: string | null,
 }> = {};
 
 export async function usersOnline(client: any): Promise<void> {
   try {
-    const guild = await client.guilds.fetch(Bun.env.GUILD_ID);
+    const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
 
     const now = new Date();
     const formattedTime = formatDate(now.toISOString());
     const userIds = getEnv('USER_IDS') as string;
 
     for (const userId of userIds.split(',') || []) {
+      Logging.debug(`${userId}`);
       try {
         const member = await guild.members.fetch(`${userId}`);
         const status = member.presence?.status || 'offline';
 
         userStatussen[userId] = {
-          username: member.user.tag,
+          userId: member.user.id,
           status,
           lastChecked: formattedTime,
         };
-
-        console.log(`${member.user.tag} is ${status} (checked at ${formattedTime})`);
       } catch (err) {
-        console.error(`Error fetching member ${userId}:`, err);
+        Logging.error(`Error fetching member ${userId}: ${err}`,);
         userStatussen[userId] = {
-          username: '',
+          userId: `${userId}`,
           status: 'error',
           lastChecked: formattedTime,
         };
