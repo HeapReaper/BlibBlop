@@ -13,16 +13,17 @@ export async function usersOnline(client: any): Promise<void> {
 
     for (const userId of Bun.env.USER_IDS?.split(',') || []) {
       try {
-        const member = await client.guilds.cache.get(guild.id)?.members.fetch(`${userId}`);
-        const presence = member.presence;
+        const member = await guild.members.fetch(`${userId}`);
+
+        const status = member.presence?.status || 'offline';
 
         userStatussen[userId] = {
           username: member.user.tag,
-          status: presence?.status || 'offline',
+          status,
           lastChecked: formattedTime,
         };
 
-        console.log(`${member.user.tag} is ${presence?.status || 'offline'} (checked at ${formattedTime})`);
+        console.log(`${member.user.tag} is ${status} (checked at ${formattedTime})`);
       } catch (err) {
         console.error(`Error fetching member ${userId}:`, err);
         userStatussen[userId] = {
@@ -32,6 +33,7 @@ export async function usersOnline(client: any): Promise<void> {
         };
       }
     }
+
   } catch (err) {
     console.error('Error fetching guild:', err);
   }
