@@ -9,11 +9,11 @@ export const userStatussen: Record<string, {
 
 export async function usersOnline(client: any): Promise<void> {
   try {
-    const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
+    const guild = await client.guilds.fetch('1350811442856726559');
 
     const now = new Date();
     const formattedTime = formatDate(now.toISOString());
-    const userIds = getEnv('USER_IDS') as string;
+    const userIds = "632677231113666601,321272615052378113,1350816171741417563";
 
     for (const userId of userIds.split(',') || []) {
       Logging.debug(`${userId}`);
