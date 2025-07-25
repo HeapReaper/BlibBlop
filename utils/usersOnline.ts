@@ -1,3 +1,5 @@
+import {getEnv} from "@utils/env.ts";
+
 export const userStatussen: Record<string, {
   username: string,
   status: string,
@@ -10,11 +12,11 @@ export async function usersOnline(client: any): Promise<void> {
 
     const now = new Date();
     const formattedTime = formatDate(now.toISOString());
+    const userIds = getEnv('USER_IDS') as string;
 
-    for (const userId of Bun.env.USER_IDS?.split(',') || []) {
+    for (const userId of userIds.split(',') || []) {
       try {
         const member = await guild.members.fetch(`${userId}`);
-
         const status = member.presence?.status || 'offline';
 
         userStatussen[userId] = {
