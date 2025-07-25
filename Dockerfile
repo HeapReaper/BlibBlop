@@ -8,4 +8,6 @@ RUN bun install
 
 WORKDIR /app/src
 
+EXPOSE 3144
+
 CMD ["bun", "run", "index.ts"]
