@@ -13,7 +13,7 @@ export async function usersOnline(client: any): Promise<void> {
 
     for (const userId of Bun.env.USER_IDS?.split(',') || []) {
       try {
-        const member = await client.guilds.cache.get(guild.id)?.members.fetch(userId);
+        const member = await client.guilds.cache.get(guild.id)?.members.fetch(`${userId}`);
         const presence = member.presence;
 
         userStatussen[userId] = {
