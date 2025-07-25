@@ -99,7 +99,7 @@ export default class Events {
 			await this.automationChannel.send({ embeds: [bootEmbed], files: [this.botIcon] });
 
 		} catch (error) {
-			Logging.error(`Error in bootEvent serverLogger: ${error}`);
+			Logging.warn(`Error in bootEvent serverLogger: ${error}`);
 		}
 	}
 
