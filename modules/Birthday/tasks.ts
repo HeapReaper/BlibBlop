@@ -10,6 +10,7 @@ export default class Tasks {
 
 	constructor(client: Client) {
 		this.client = client;
+		void this.checkBirthdays();
 		cron.schedule('0 10 * * *', async (): Promise<void> => {
 			Logging.debug('Running Cron "checkBirthdays"');
 			void this.checkBirthdays();
@@ -17,14 +18,17 @@ export default class Tasks {
 	}
 
 	async checkBirthdays(): Promise<void> {
+		Logging.trace('Running Cron "checkBirthdays"');
 		const now = new Date();
 
 		const birthdays: any[] = await QueryBuilder.select('birthday').get();
 
 		for (const birthday of birthdays) {
+			Logging.trace(`Checking Birthday: ${birthdays}`);
+
 			const paredBirthday = new Date(Date.parse(birthday.birthdate));
 
-			if ((paredBirthday.getMonth() + 1) !== (now.getMonth() + 1) && paredBirthday.getDate() !== now.getDate()) {
+			if ((paredBirthday.getMonth() + 1) !== (now.getMonth() + 1) || paredBirthday.getDate() !== now.getDate()) {
 				continue;
 			}
 
