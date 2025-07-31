@@ -49,6 +49,9 @@ I handle a lot in the background! 👇
 - <span style="color:orange;">[Event]</span> When a message is posted in [#photo-contest](https://discord.gg/bFjc6pGfQ5), the bot checks if it meets the [rules](https://discord.com/channels/1350811442856726559/1350877019298070689/1397127398218137610). If not, the message is deleted.
 - <span style="color:orange;">[Event]</span> When an emoji reaction (vote) is added in [#photo-contest](https://discord.gg/bFjc6pGfQ5), the bot checks if it's valid according to the [rules](https://discord.com/channels/1350811442856726559/1350877019298070689/1397127398218137610). If not, the vote is removed.
 
+### Reminders
+- <span style="color:purple;">[Task]</span> Every 19:00 it sends a Disboard review reminder in [#general](https://discord.gg/jHBFgAdbne).
+
 ## Commands
 For members and admins – here 👇 you’ll find all commands/interactions!
 

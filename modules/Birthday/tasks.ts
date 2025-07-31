@@ -18,7 +18,6 @@ export default class Tasks {
 	}
 
 	async checkBirthdays(): Promise<void> {
-		Logging.trace('Running Cron "checkBirthdays"');
 		const now = new Date();
 
 		const birthdays: any[] = await QueryBuilder.select('birthday').get();
@@ -33,7 +32,6 @@ export default class Tasks {
 			}
 
 			const user = await this.client.users.fetch(`${birthday.user_id}`);
-
 			const channelToSend = this.client.channels.cache.get(getEnv('GENERAL') as string) as TextChannel;
 
 			if (!channelToSend) {
