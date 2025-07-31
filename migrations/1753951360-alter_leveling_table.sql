@@ -1,0 +1,1 @@
+ALTER TABLE leveling MODIFY xp INTEGER;
