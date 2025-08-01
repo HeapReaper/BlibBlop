@@ -13,7 +13,7 @@ export default class Tasks {
 
     constructor(client: Client) {
 			this.client = client;
-			cron.schedule('30 18 28-31 * *', async () => {
+			cron.schedule('30 18 28-31 * *', async () => { // 18:30 every end of the month
 				const today = new Date();
 				const tomorrow = new Date(today);
 				tomorrow.setDate(today.getDate() + 1);
