@@ -79,7 +79,7 @@ export default class CommandsListener {
   		`,
 			format: 'JSONEachRow',
 			query_params: {
-				author_id: '632677231113666601',
+				author_id: `${interaction.user.id}`,
 			},
 		});
 
