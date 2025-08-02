@@ -1,6 +1,8 @@
-import QueryBuilder from "@utils/database.ts";
-import {chClient} from "@utils/clickhouse.ts";
+function getXpForNextLevel(level: number): number {
+  if (level == 0) return 50;
+  return 50 * level * level;
+}
 
 
 
-console.log(message_count);
+console.log(getXpForNextLevel(5))

@@ -16,7 +16,6 @@ export async function usersOnline(client: any): Promise<void> {
     const userIds = getEnv('USER_IDS') as string;
 
     for (const userId of userIds.split(',') || []) {
-      Logging.debug(`${userId}`);
       try {
         const member = await guild.members.fetch(`${userId}`);
         const status = member.presence?.status || 'offline';

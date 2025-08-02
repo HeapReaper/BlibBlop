@@ -202,8 +202,6 @@ export default class Events {
 				.where({ id: message.id })
 				.first();
 
-			Logging.debug(`${messageFromDbCache}`);
-
 			if (!allS3Files.success) {
 				Logging.warn('Failed to list S3 objects. Skipping attachment restoration.');
 				return;

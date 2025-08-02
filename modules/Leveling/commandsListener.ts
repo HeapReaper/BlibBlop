@@ -83,6 +83,7 @@ export default class CommandsListener {
 			},
 		});
 
+		// @ts-ignore
 		const [{message_count}] = await resultSet.json();
 
 		const embed = new EmbedBuilder()
