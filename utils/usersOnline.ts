@@ -1,5 +1,5 @@
-import {getEnv} from "@utils/env.ts";
-import {Logging} from "@utils/logging.ts";
+import { getEnv } from '@utils/env';
+import { Logging } from '@utils/logging';
 
 export const userStatussen: Record<string, {
   userId: string,
