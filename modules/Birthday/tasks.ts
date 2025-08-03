@@ -10,7 +10,7 @@ export default class Tasks {
 
 	constructor(client: Client) {
 		this.client = client;
-		void this.checkBirthdays();
+
 		cron.schedule('0 10 * * *', async (): Promise<void> => {
 			Logging.debug('Running Cron "checkBirthdays"');
 			void this.checkBirthdays();
