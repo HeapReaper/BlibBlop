@@ -3,7 +3,9 @@ import { Logging } from '@utils/logging';
 import QueryBuilder from '@utils/database';
 import { getEnv } from '@utils/env.ts';
 import cron from 'node-cron';
-import {calcAge} from '@utils/age';
+import { calcAge } from '@utils/age';
+import { Color } from '@enums/ColorEnum';
+import { DateTime } from 'luxon';
 
 export default class Tasks {
 	private client: Client;
@@ -18,16 +20,13 @@ export default class Tasks {
 	}
 
 	async checkBirthdays(): Promise<void> {
-		const now = new Date();
-
+		const now = DateTime.now().setZone('Europe/Amsterdam');
 		const birthdays: any[] = await QueryBuilder.select('birthday').get();
 
 		for (const birthday of birthdays) {
-			Logging.trace(`Checking Birthday: ${birthdays}`);
+			const birthdayDate = DateTime.fromJSDate(new Date(birthday.birthdate)).setZone('Europe/Amsterdam');
 
-			const paredBirthday = new Date(Date.parse(birthday.birthdate));
-
-			if ((paredBirthday.getMonth() + 1) !== (now.getMonth() + 1) || paredBirthday.getDate() !== now.getDate()) {
+			if (birthdayDate.month !== now.month || birthdayDate.day !== now.day) {
 				continue;
 			}
 
@@ -39,10 +38,12 @@ export default class Tasks {
 				return;
 			}
 
+			const age = now.year - birthdayDate.year;
+
 			const embed = new EmbedBuilder()
 				.setColor(0x2563EB)
 				.setTitle('RC Garage')
-				.setDescription(`Hey ${user},\ngefeliciteerd met ${calcAge(new Date(birthday.birthdate))}e verjaardag!\n🎊💪`)
+				.setDescription(`Hey ${user},\ngefeliciteerd met je ${age}e verjaardag!\n🎊💪`)
 				.setThumbnail(user.displayAvatarURL())
 				.setTimestamp();
 

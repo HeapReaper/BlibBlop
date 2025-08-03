@@ -1,6 +1,15 @@
-import { Client, Interaction, Events, MessageFlags} from 'discord.js';
+import {
+	Client,
+	Interaction,
+	Events,
+	MessageFlags,
+	PermissionsBitField,
+	EmbedBuilder,
+} from 'discord.js';
 import { Logging } from '@utils/logging';
 import QueryBuilder from '@utils/database';
+import { Color } from '@enums/ColorEnum';
+import { formatDate } from '@utils/formatDate';
 
 export default class CommandsListener {
 	private client: Client;
@@ -26,6 +35,9 @@ export default class CommandsListener {
 					break;
 				case 'verwijderen':
 					void this.birthdayRemove(interaction);
+					break;
+				case 'lijst':
+					void this.birthdayList(interaction);
 					break;
 			}
 		});
@@ -81,5 +93,47 @@ export default class CommandsListener {
 			await interaction.reply({content: 'Er ging iets mis! Het probleem is gerapporteerd aan de developer.', flags: MessageFlags.Ephemeral});
 			return
 		}
+	}
+
+	async birthdayList(interaction: Interaction): Promise<void> {
+		if (!interaction.isCommand()) return;
+
+		if (!interaction.member) {
+			await interaction.reply({
+				content: 'Oeps, er ging iets mis!',
+				flags: MessageFlags.Ephemeral,
+			});
+
+			return;
+		}
+
+		// @ts-ignore
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+			await interaction.reply({
+				content: 'Oeps, je hebt er geen toegang tot!',
+				flags: MessageFlags.Ephemeral,
+			});
+
+			return;
+		}
+
+		const birthdays = await QueryBuilder
+			.select('birthday')
+			.execute();
+
+		const embed = new EmbedBuilder()
+			.setColor(Color.AeroBytesBlue)
+			.setTitle('Verjaardagen')
+
+		for (const birthday of birthdays) {
+			const user = await this.client.users.fetch(birthday.user_id);
+
+			embed.addFields({
+				name: user ? user.displayName : birthday.user_id,
+				value: formatDate(birthday.birthdate),
+			})
+		}
+
+		await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 	}
 }

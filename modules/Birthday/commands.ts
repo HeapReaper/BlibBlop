@@ -36,4 +36,9 @@ export const commands = [
         .setName('verwijderen')
         .setDescription('Verwijder je verjaardag!')
     )
+    .addSubcommand(list =>
+      list
+        .setName('lijst')
+        .setDescription('Verjaardagen lijst, alleen voor admins')
+    )
 ].map(commands => commands.toJSON());
