@@ -60,8 +60,9 @@ I handle a lot in the background! 👇
 For members and admins – here 👇 you’ll find all commands/interactions!
 
 ### Birthday
-- `/birthday add` – Add your birthday to be announced once a year in [#general](https://discord.gg/jHBFgAdbne)!
-- `/birthday remove` – Remove your birthday from the bot.
+- `/verjaardag toevoegen` – Add your birthday to be announced once a year in [#general](https://discord.gg/jHBFgAdbne)!
+- `/verjaardag verwijderen` – Remove your birthday from the bot.
+- `/verjaardag lijst` - Get a list of all birthdays (admins only)
 
 ### Blib
 - `/blib` – Get a random variation of "Blib"!
