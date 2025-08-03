@@ -28,6 +28,7 @@ export default class Tasks {
 		Logging.info('Vote time for "foto-webstrijd"!');
 
 		const pictureContestChannel = await this.client.channels.fetch(getEnv('PHOTO_CONTEST') as string) as TextChannel;
+		const announcementChannel = await this.client.channels.fetch(getEnv('ANNOUNCEMENT') as string) as TextChannel;
 
 		if (!pictureContestChannel) {
 			Logging.error('PictureContestChannel not found in "endOfPhotoContestVoting"');
@@ -68,6 +69,7 @@ export default class Tasks {
 					.setTimestamp();
 
 				await pictureContestChannel.send({ embeds: [embed] });
+				await announcementChannel.send({ embeds: [embed] });
 				Logging.info('Found picture contest winner!');
 				break;
 			} catch (error) {
