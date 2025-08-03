@@ -82,8 +82,9 @@ export async function createWebServer(client: Client, port = 3144) {
     res.end(await register.metrics());
   });
 
-  webApp.listen(port, () => {
+  webApp.listen(port, async () => {
     Logging.info(`API running at http://localhost:${port}`);
+    await countAllExistingMessages(client, guildMessageTotal);
   });
 
   await updateGuildMetrics();
@@ -98,3 +99,47 @@ function formatTimestamp(timestamp: number) {
   const min = String(date.getMinutes()).padStart(2, '0');
   return `${dd}-${mm}-${yy} ${h}:${min}`;
 }
+
+async function countAllExistingMessages(client: Client, guildMessageTotal: promClient.Counter) {
+  const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
+  await guild.channels.fetch();
+
+  for (const channel of guild.channels.cache.values()) {
+    if (!channel.isTextBased() || !channel.viewable) continue;
+
+    Logging.info(`Fetching messages from #${channel.name}...`);
+
+    let lastId: string | undefined;
+    let fetchedCount = 0;
+
+    while (true) {
+      const options: any = { limit: 100 };
+      if (lastId) options.before = lastId;
+
+      const messages = await channel.messages.fetch(options);
+      if (messages.size === 0) break;
+
+      messages.forEach(message => {
+        if (!message.author.bot) {
+          const msgDate = new Date(message.createdTimestamp);
+          const labels = {
+            channel_id: message.channel.id,
+            hour: String(msgDate.getHours()).padStart(2, '0'),
+            day: String(msgDate.getDate()).padStart(2, '0'),
+            month: String(msgDate.getMonth() + 1).padStart(2, '0'),
+          };
+          guildMessageTotal.inc(labels);
+          fetchedCount++;
+        }
+      });
+
+      lastId = messages.last()?.id;
+      if (!lastId) break;
+
+      await new Promise(res => setTimeout(res, 1000)); // prevent hitting rate limit
+    }
+
+    Logging.info(`Fetched ${fetchedCount} messages from #${channel.name}`);
+  }
+}
+
