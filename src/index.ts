@@ -9,6 +9,9 @@ import * as process from 'node:process';
 import express from 'express';
 import cron from 'node-cron';
 import { userStatussen, usersOnline } from '@utils/usersOnline';
+import promClient from 'prom-client';
+
+// TODO: abstract this all away
 
 const client = new Client({
 	intents: [
@@ -31,6 +34,10 @@ const client = new Client({
 
 const webApp = express();
 const PORT = 3144;
+
+const register = new promClient.Registry();
+
+promClient.collectDefaultMetrics({ register });
 
 webApp.get('/user-statussen', (req: any, res: any) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -72,13 +79,13 @@ webApp.get('/stats/guild', async (req: any, res: any) => {
 	} catch (error) {
 		Logging.warn(`Error in "/stats/guild/": ${error}`);
 	}
-
 })
 
-webApp.listen(PORT, () => {
-	Logging.info(`API running at http://localhost:${PORT}`);
+webApp.get('/metrics', async (req: any, res: any) => {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.set('Content-Type', register.contentType);
+	res.end(await register.metrics());
 });
-
 
 client.on('ready', async client => {
 	await usersOnline(client);
@@ -131,5 +138,8 @@ function formatTimestamp(timestamp: any) {
 	return `${dd}-${mm}-${yy} ${h}:${min}`;
 }
 
+webApp.listen(PORT, () => {
+	Logging.info(`API running at http://localhost:${PORT}`);
+});
 
 void client.login(getEnv('DISCORD_TOKEN'));
