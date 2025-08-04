@@ -100,7 +100,7 @@ export async function createWebServer(client: Client, port = 3144) {
       const stats = {
         guildName: guild.name,
         guildId: guild.id,
-        onlineCount: membersOnline.size,
+        membersOnline: membersOnline.size,
         memberCount: members.size,
         boostCount: guild.premiumSubscriptionCount || 0,
         lastJoined: lastJoinedDate
