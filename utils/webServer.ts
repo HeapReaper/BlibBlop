@@ -87,6 +87,7 @@ export async function createWebServer(client: Client, port = 3144) {
 
       await guild.members.fetch();
       const members = guild.members.cache.filter(m => !m.user.bot);
+      const membersOnline = members.filter(m => m.presence?.status !== 'offline')
 
       const lastJoinedMember = members
         .sort((a, b) => (b.joinedTimestamp || 0) - (a.joinedTimestamp || 0))
@@ -99,6 +100,7 @@ export async function createWebServer(client: Client, port = 3144) {
       const stats = {
         guildName: guild.name,
         guildId: guild.id,
+        onlineCount: membersOnline,
         memberCount: members.size,
         boostCount: guild.premiumSubscriptionCount || 0,
         lastJoined: lastJoinedDate
