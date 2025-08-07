@@ -34,6 +34,21 @@ export async function createWebServer(client: Client, port = 3144) {
   register.registerMetric(guildBoostCount);
   register.registerMetric(guildMessageTotal);
 
+  // Register the messageCreate listener ONLY ONCE here
+  client.on('messageCreate', message => {
+    if (!message.guild || message.author.bot) return;
+    if (message.guild.id === getEnv('GUILD_ID')) {
+      const now = new Date();
+      const labels = {
+        channel_id: message.channel.id,
+        hour: String(now.getHours()).padStart(2, '0'),
+        day: String(now.getDate()).padStart(2, '0'),
+        month: String(now.getMonth() + 1).padStart(2, '0'),
+      };
+      guildMessageTotal.inc(labels);
+    }
+  });
+
   async function updateGuildMetrics() {
     try {
       const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
@@ -45,20 +60,6 @@ export async function createWebServer(client: Client, port = 3144) {
       await guild.members.fetch();
       const members = guild.members.cache.filter(m => !m.user.bot);
       guildMemberCount.set(members.size);
-
-      client.on('messageCreate', message => {
-        if (!message.guild || message.author.bot) return;
-        if (message.guild.id === getEnv('GUILD_ID')) {
-          const now = new Date();
-          const labels = {
-            channel_id: message.channel.id,
-            hour: String(now.getHours()).padStart(2, '0'),
-            day: String(now.getDate()).padStart(2, '0'),
-            month: String(now.getMonth() + 1).padStart(2, '0'),
-          };
-          guildMessageTotal.inc(labels);
-        }
-      });
 
       guildBoostCount.set(guild.premiumSubscriptionCount || 0);
     } catch (err) {
@@ -87,7 +88,7 @@ export async function createWebServer(client: Client, port = 3144) {
 
       await guild.members.fetch();
       const members = guild.members.cache.filter(m => !m.user.bot);
-      const membersOnline = members.filter(m => m.presence?.status === 'idle' ||  m.presence?.status === 'online')
+      const membersOnline = members.filter(m => m.presence?.status === 'idle' || m.presence?.status === 'online');
 
       const lastJoinedMember = members
         .sort((a, b) => (b.joinedTimestamp || 0) - (a.joinedTimestamp || 0))
@@ -103,7 +104,7 @@ export async function createWebServer(client: Client, port = 3144) {
         membersOnline: membersOnline.size,
         memberCount: members.size,
         boostCount: guild.premiumSubscriptionCount || 0,
-        lastJoined: lastJoinedDate
+        lastJoined: lastJoinedDate,
       };
 
       res.json(stats);
