@@ -1,3 +1,4 @@
+// @ts-ignore
 import express from 'express';
 import promClient from 'prom-client';
 import { Logging } from '@utils/logging';
@@ -72,11 +73,13 @@ export async function createWebServer(client: Client, port = 3144) {
     await updateGuildMetrics();
   });
 
+  // @ts-ignore
   webApp.get('/user-statussen', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.json(userStatussen);
   });
 
+  // @ts-ignore
   webApp.get('/stats/guild', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -114,6 +117,7 @@ export async function createWebServer(client: Client, port = 3144) {
     }
   });
 
+  // @ts-ignore
   webApp.get('/metrics', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.set('Content-Type', register.contentType);
