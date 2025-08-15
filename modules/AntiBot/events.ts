@@ -18,7 +18,7 @@ export default class Events {
     }
 
     private memberJoinRules = {
-        min_account_age: 1,
+        min_account_age: 0,
         username_regex: 'bot',
         must_have_avatar: false,
     }
