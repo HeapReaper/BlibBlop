@@ -1,4 +1,4 @@
-import { Client, TextChannel } from 'discord.js';
+import {Client, EmbedBuilder, TextChannel} from 'discord.js';
 import { getEnv } from '../../utils/env.ts';
 import { Logging } from "../../utils/logging.ts";
 
@@ -19,7 +19,7 @@ export default class BumpReminderTasks {
 	bumpReminderTask(): void {
 		try {
 			setInterval(async () => {
-				Logging.debug('Checking if the server can be bumped again!');
+				Logging.trace('Checking if the server can be bumped again!');
 
 				if (!this.bumpChannel) {
 					Logging.warn('bumpChannel is undefined!');
@@ -31,14 +31,19 @@ export default class BumpReminderTasks {
 				messages.then(async messages => {
 					if (messages.size === 0) return;
 
-					const lastMessage = messages.first(); // === Last message...
+					const lastMessage = messages.first();
 					if (!lastMessage) return;
 
 					if (lastMessage?.author.id === this.client.user?.id) return;
 
 					// @ts-ignore
 					if (lastMessage.createdTimestamp < Date.now() - (2 * 60 * 60 * 1000)) {
-						await this.bumpChannel.send('De server kan weer gebumped worden!');
+						const embed = new EmbedBuilder()
+							.setColor(0x2563EB)
+							.setTitle('RC Garage Herinnering')
+							.setDescription('De server kan weer gebumped worden! Dit kan met het command `/bump`.\nJe helpt de server daarmee groeien!')
+
+						await this.bumpChannel.send({ embeds: [embed]});
 					}
 				});
 			}, 20000);
