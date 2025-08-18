@@ -1,1 +1,0 @@
-console.log((await fetch('https://api.pawtect.nl/health')).status === 200 ? '✅ Online' : '❌ Offline')

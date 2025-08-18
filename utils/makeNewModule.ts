@@ -1,34 +1,31 @@
 import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import * as process from 'node:process';
 
-if (process.argv.slice(2).length == 0) {
-    console.error('Please specify the module name you weirdo!');
-    process.exit();
-}
+export async function makeNewModule(name: string) {
 
-const modulesDir = `./modules`;
-const moduleNameToCreate = process.argv.slice(2)[0];
+    const modulesDir = `./modules`;
+    const moduleNameToCreate = name;
 
-console.log(`Making module named ${moduleNameToCreate} inside ${modulesDir}/`);
+    console.log(`Making module named ${moduleNameToCreate} inside ${modulesDir}/`);
 
-if (existsSync(`${modulesDir}/${moduleNameToCreate}`)) {
-    console.error(`Module named ${moduleNameToCreate} already exists!`);
-    process.exit();
-}
+    if (existsSync(`${modulesDir}/${moduleNameToCreate}`)) {
+        console.error(`Module named ${moduleNameToCreate} already exists!`);
+        process.exit();
+    }
 
-// Making modules folder
-mkdirSync(`${modulesDir}/${moduleNameToCreate}`);
+    // Making modules folder
+    mkdirSync(`${modulesDir}/${moduleNameToCreate}`);
 
-const commandsFileWrite =
-    `import { SlashCommandBuilder } from 'discord.js';
+    const commandsFileWrite =
+      `import { SlashCommandBuilder } from 'discord.js';
 
 export const commands = [
 
 ].map(commands => commands.toJSON());
 `;
 
-const commandsListenerFileWrite =
-    `import { Client, Interaction, Events, MessageFlags} from 'discord.js';
+    const commandsListenerFileWrite =
+      `import { Client, Interaction, Events, MessageFlags} from 'discord.js';
 import Database from '@utils/database';
 import { Logging } from '@utils/logging';
 
@@ -46,8 +43,8 @@ export default class CommandsListener {
 }
 `;
 
-const eventsFileWrite =
-    `import { Client, TextChannel } from 'discord.js';
+    const eventsFileWrite =
+      `import { Client, TextChannel } from 'discord.js';
 
 export default class Events {
     private client: Client;
@@ -58,8 +55,8 @@ export default class Events {
 }
 `;
 
-const tasksFileWrite =
-    `import { Client, TextChannel } from 'discord.js';
+    const tasksFileWrite =
+      `import { Client, TextChannel } from 'discord.js';
 
 export default class Tasks {
 	private client: Client;
@@ -70,10 +67,11 @@ export default class Tasks {
 }
 `;
 
-// Making and writing module files
-writeFileSync(`${modulesDir}/${moduleNameToCreate}/commands.ts`, commandsFileWrite);
-writeFileSync(`${modulesDir}/${moduleNameToCreate}/commandsListener.ts`, commandsListenerFileWrite);
-writeFileSync(`${modulesDir}/${moduleNameToCreate}/events.ts`, eventsFileWrite);
-writeFileSync(`${modulesDir}/${moduleNameToCreate}/tasks.ts`, tasksFileWrite);
+    // Making and writing module files
+    writeFileSync(`${modulesDir}/${moduleNameToCreate}/commands.ts`, commandsFileWrite);
+    writeFileSync(`${modulesDir}/${moduleNameToCreate}/commandsListener.ts`, commandsListenerFileWrite);
+    writeFileSync(`${modulesDir}/${moduleNameToCreate}/events.ts`, eventsFileWrite);
+    writeFileSync(`${modulesDir}/${moduleNameToCreate}/tasks.ts`, tasksFileWrite);
 
-console.log('I created the module!');
+    console.log('I created the module!');
+}
