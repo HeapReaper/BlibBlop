@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import cron from 'node-cron';
 import { getEnv } from '@utils/env';
+import { ColorEnum } from '@enums/ColorEnum';
 
 export default class Tasks {
 	private client: Client;
@@ -25,18 +26,18 @@ export default class Tasks {
 		})
 	}
 
-	async disboardReview() {
-		const embed = new EmbedBuilder()
-			.setColor(0x2563EB)
+	async disboardReview(): Promise<void> {
+		const embed: EmbedBuilder = new EmbedBuilder()
+			.setColor(ColorEnum.AeroBytesBlue)
 			.setTitle('RC Garage Herinnering')
 			.setDescription('Heb jij al een review achtergelaten op [Disboard](https://disboard.org/nl/server/1350811442856726559) of [Top.GG](https://top.gg/discord/servers/744654584256151552#reviews)?\nJe helpt de server daarmee groeien!')
 
 		await this.generalChannel.send({ embeds: [embed] });
 	}
 
-	async voteReminder() {
-		const embed = new EmbedBuilder()
-			.setColor(0x2563EB)
+	async voteReminder(): Promise<void> {
+		const embed: EmbedBuilder = new EmbedBuilder()
+			.setColor(ColorEnum.AeroBytesBlue)
 			.setTitle('RC Garage Herinnering')
 			.setDescription(`Heb jij al gestemd in <#1379143853293961346> of <#1395819707424047124>?\nAan het einde van de maand wordt de winnaar bekendgemaakt!`)
 

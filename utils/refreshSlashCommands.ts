@@ -5,7 +5,7 @@ import path from 'path';
 import { Logging } from '@utils/logging';
 import { getEnv } from '@utils/env.ts';
 
-async function commandsLoader() {
+export async function refreshSlashCommands(): Promise<void> {
     const modulesPath: string = path.join(process.cwd(), 'modules');
     const modulesFolder: string[] = await fs.readdir(modulesPath);
     const rest = new REST({ version: '10' }).setToken(getEnv('DISCORD_TOKEN')!);
@@ -49,5 +49,3 @@ async function commandsLoader() {
         Logging.error(`Failed to register all commands: ${error}`);
     }
 }
-
-void commandsLoader();
