@@ -5,8 +5,8 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 import QueryBuilder from '@utils/database';
-import {chClient} from '@utils/clickhouse';
-
+import { chClient } from '@utils/clickhouse';
+import { Color } from '@enums/ColorEnum';
 export default class CommandsListener {
 	private client: Client;
 
@@ -47,6 +47,7 @@ export default class CommandsListener {
 
 		const embed = new EmbedBuilder()
 			.setTitle('Scoreboard')
+			.setColor(Color.Blue)
 			.setDescription('Zie de top 10!')
 
 		for (const entry of dbRes) {
@@ -88,6 +89,7 @@ export default class CommandsListener {
 
 		const embed = new EmbedBuilder()
 			.setTitle('Profiel')
+			.setColor(Color.Blue)
 			.addFields(
 				{ name: 'XP', value: `${dbRes.xp ?? '0'}` },
 				{ name: 'Level', value: `${dbRes.level ?? '0'}` },
