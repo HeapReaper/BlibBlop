@@ -10,7 +10,7 @@ export class Pawtect {
     apiKey: string = '',
     method: string = 'POST'
   ): Promise<Response> {
-    return await fetch(`https://api.pawtect.nl/${endpoint}`, {
+    return await fetch(`https://api-pawtect.heapreaper.nl/${endpoint}`, {
       method,
       headers: {
         'Content-Type': 'application/json',
