@@ -1,16 +1,17 @@
 import {
     Client,
     TextChannel,
-    Events as DiscordEvents
+    Events as DiscordEvents, EmbedBuilder
 } from 'discord.js';
 import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 import { isBot } from '@utils/isBot';
 import QueryBuilder from '@utils/database';
 import { externalLogToServer } from '../ServerLogger/events';
+import {Color} from "@enums/ColorEnum.ts";
 
 export default class Events {
-    private client: Client;
+    private readonly client: Client;
 
     constructor(client: Client) {
         this.client = client;
@@ -40,7 +41,7 @@ export default class Events {
                       this.client
                     );
                     await message.delete();
-                    return this.sendRuleNotification(photoContestCh);
+                    return this.sendRuleNotification(photoContestCh, 'Meer dan 1 afbeelding in het bericht');
                 }
 
                 if (message.content.length > 30) {
@@ -50,7 +51,7 @@ export default class Events {
                       this.client
                     );
                     await message.delete();
-                    return this.sendRuleNotification(photoContestCh);
+                    return this.sendRuleNotification(photoContestCh, 'Tekst bij het bericht is boven de 30 tekens');
                 }
                 if (todayAuthorMessages.size > 1) {
                     Logging.info('Denied a photo contest post: Author already posted a message today');
@@ -59,7 +60,7 @@ export default class Events {
                       this.client
                     );
                     await message.delete();
-                    return this.sendRuleNotification(photoContestCh);
+                    return this.sendRuleNotification(photoContestCh, 'Je hebt al een bericht geplaatst vandaag.');
                 }
 
                 Logging.info('A new photo contest image has been approved!');
@@ -78,6 +79,8 @@ export default class Events {
 
                 if (reaction.emoji.name !== '🔥') return;
 
+                const photoContestCh = await this.client.channels.fetch(getEnv('PHOTO_CONTEST') as string) as TextChannel;
+
                 if (reaction.partial) {
                     reaction = await reaction.fetch();
                 }
@@ -95,6 +98,9 @@ export default class Events {
                       `Een stem verwijderd van <@${user.id ?? '0000'}> die in foto-wedstrijd een reactie op de bot plaatste`,
                       this.client
                     );
+
+                    await this.sendRuleNotification(photoContestCh, 'Je kunt geen stem op een bot plaatsen.');
+
                     Logging.info(`Removed reaction of someone who tried voting on the bot!`)
                     return;
                 }
@@ -106,6 +112,9 @@ export default class Events {
                       `Een stem verwijderd van <@${user.id ?? '0000'}> die op zijn eigen bericht wou stemmen.`,
                       this.client
                     );
+
+                    await this.sendRuleNotification(photoContestCh, 'Je kunt niet op jezelf stemmen!');
+
                     Logging.info(`Removed reaction of someone who tried voting on himself!`)
                     return;
                 }
@@ -127,6 +136,9 @@ export default class Events {
                       `Een stem verwijderd van <@${user.id ?? '0000'}> die deze maand al gestemd had!`,
                       this.client
                     );
+
+                    await this.sendRuleNotification(photoContestCh, 'Je kunt maximaal 2 keer per maand stemmen!');
+
                     Logging.info(`Removed a reaction from a user that already voted today!`)
                 }
 
@@ -173,19 +185,25 @@ export default class Events {
     }
 
     ifIsToday(createdAt: Date) {
-        const now = new Date();
-        return createdAt.getDate() === now.getDate() &&
-          createdAt.getMonth() === now.getMonth() &&
-          createdAt.getFullYear() === now.getFullYear();
+      const now = new Date();
+      return createdAt.getDate() === now.getDate() &&
+        createdAt.getMonth() === now.getMonth() &&
+        createdAt.getFullYear() === now.getFullYear();
     }
 
-    async sendRuleNotification(photoContestCh: any) {
-        const notification = await photoContestCh.send({
-            content: 'Regels: Zie https://discord.com/channels/1350811442856726559/1350877019298070689/1397127398218137610'
-        })
+    async sendRuleNotification(channelToSend: TextChannel, reason: string) {
+      const embed = new EmbedBuilder()
+        .setColor(Color.Red)
+        .setTitle('Bericht/reactie verwijderd')
+        .setDescription('Regels: https://discord.com/channels/1350811442856726559/1350877019298070689/1397127398218137610')
+        .addFields(
+          { name: 'Reden:', value: reason },
+        );
 
-        setTimeout(() => {
-            notification.delete();
-        }, 4000)
+      const notification = await channelToSend.send({ embeds: [embed] });
+
+      setTimeout(() => {
+          notification.delete();
+      }, 4000)
     }
 }
