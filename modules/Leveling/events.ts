@@ -26,7 +26,7 @@ export default class Events {
     '1400403298250526740', // Level 7
     '1400403296581189643', // Level 8
     '1400403293926330458', // Level 9
-    '1400403291522728038', // Level 10
+    '1400403291522728038', // Level 10+
   ]
   constructor(client: Client) {
     this.client = client;
@@ -54,40 +54,39 @@ export default class Events {
       let newXp = Number(levelingFromDB.xp) + Number(this.earnXp);
 
       // If level up
-      if (newXp >= this.getXpForNextLevel(levelingFromDB.level + 1)) {
-        const newLevel = levelingFromDB.level + 1;
-        const addIndex = newLevel - 1;
-        const removeIndex = levelingFromDB.level - 1;
-
-        try {
-          const roleToAdd = this.levelRoleIds[addIndex];
-          if (roleToAdd) {
-            await message.member?.roles.add(roleToAdd);
-            Logging.info(`Added role ${roleToAdd} for level ${newLevel}`);
-          }
-
-          if (removeIndex >= 0) {
-            const roleToRemove = this.levelRoleIds[removeIndex];
-            if (roleToRemove) {
-              await message.member?.roles.remove(roleToRemove);
-              Logging.info(`🗑Removed role ${roleToRemove} for old level ${levelingFromDB.level}`);
-            }
-          }
-        } catch (error) {
-          Logging.warn(`Cannot add or remove level roles in Leveling Events: ${error}`);
-        }
-
-        await this.updateLeveling(message.author.id, newXp, newLevel);
-        await this.sendLevelUpNotification(message.author.id, newXp, newLevel);
+      if (newXp < this.getXpForNextLevel(levelingFromDB.level + 1)) {
+        await this.updateLeveling(message.author.id, newXp, levelingFromDB.level);
         return;
       }
 
-      await this.updateLeveling(message.author.id, newXp, levelingFromDB.level);
+      const newLevel = levelingFromDB.level + 1;
+      const addIndex = newLevel - 1;
+      const removeIndex = levelingFromDB.level - 1;
+
+      try {
+        const roleToAdd = this.levelRoleIds[addIndex];
+        if (roleToAdd) {
+          await message.member?.roles.add(roleToAdd);
+          Logging.info(`Added role ${roleToAdd} for level ${newLevel}`);
+        }
+
+        const roleToRemove = this.levelRoleIds[removeIndex];
+        if (removeIndex >= 0 && roleToRemove) {
+          await message.member?.roles.remove(roleToRemove);
+          Logging.info(`🗑Removed role ${roleToRemove} for old level ${levelingFromDB.level}`);
+        }
+      } catch (error) {
+        Logging.warn(`Cannot add or remove level roles in Leveling Events: ${error}`);
+      }
+
+      await this.updateLeveling(message.author.id, newXp, newLevel);
+      await this.sendLevelUpNotification(message.author.id, newXp, newLevel);
     });
   }
 
   getXpForNextLevel(level: number): number {
     if (level == 0) return 50;
+
     return 50 * level * level;
   }
 
@@ -120,6 +119,7 @@ export default class Events {
     if (!channel) {
       Logging.warn('Inside "sendLevelUpNotification" channel was not found!');
     }
+
     const embed = new EmbedBuilder()
       .setTitle('🎉 Level Up')
       .setColor(Color.AeroBytesBlue)
