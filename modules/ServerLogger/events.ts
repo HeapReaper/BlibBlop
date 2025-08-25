@@ -14,16 +14,16 @@ import {
 	VoiceState,
 	User,
 } from 'discord.js';
-import { Logging } from '@utils/logging.ts';
+import { Logging } from '@utils/logging';
 import { getEnv } from '@utils/env.ts';
 import S3OperationBuilder from '@utils/s3';
-import QueryBuilder from '@utils/database.ts';
+import QueryBuilder from '@utils/database';
 import path from 'path';
 import { Github } from '@utils/github';
 import { Color } from '@enums/ColorEnum'
-import db from '@utils/knex.ts';
+import db from '@utils/knex';
 import os from 'os';
-import { insertMessage, isClickhouseOnline } from '@utils/clickhouse.ts';
+import { isBot } from '@utils/isBot';
 
 export async function externalLogToServer(message: string, client: Client) {
 	const logChannel = client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
@@ -34,15 +34,15 @@ export async function externalLogToServer(message: string, client: Client) {
 }
 
 export default class Events {
-	private client: Client;
+	private readonly client: Client;
 	private logChannel: any;
 	private automationChannel: any;
-	private botIcon: AttachmentBuilder;
-	private chatIcon: AttachmentBuilder;
-	private voiceChatIcon: AttachmentBuilder;
-	private reactionIcon: AttachmentBuilder;
-	private userIcon: AttachmentBuilder;
-	private moderationIcon: AttachmentBuilder;
+	private readonly botIcon: AttachmentBuilder;
+	private readonly chatIcon: AttachmentBuilder;
+	private readonly voiceChatIcon: AttachmentBuilder;
+	private readonly reactionIcon: AttachmentBuilder;
+	private readonly userIcon: AttachmentBuilder;
+	private readonly moderationIcon: AttachmentBuilder;
 
 	constructor(client: Client) {
 		this.client = client;
@@ -69,7 +69,6 @@ export default class Events {
 			const latestCommit = await Github.getLatestCommit();
 			const mariaDB = await QueryBuilder.isOnline() ? '✅ Online' : '❌ Offline';
 			const s3 = (await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status()).up ? '✅ Online' : '❌ Offline';
-			const clickHouse = await isClickhouseOnline() ? '✅ Online' : '❌ Offline';
 			const pawtect: string = (await fetch('https://api.pawtect.nl/health')).status === 200 ? '✅ Online' : '❌ Offline';
 
 			await new Promise<void>(resolve => {
@@ -82,7 +81,7 @@ export default class Events {
 			});
 
 			const bootEmbed: EmbedBuilder = new EmbedBuilder()
-				.setColor(Color.AeroBytesBlue)
+				.setColor(Color.Blue)
 				.setTitle('Ik ben opnieuw opgestart!')
 				.addFields(
 					{ name: 'Gebruiker:', value: `<@${this.client.user?.id ?? 'Fout'}>`, inline: true  },
@@ -92,7 +91,6 @@ export default class Events {
 					{ name: 'Ping:', value: `${this.client.ws.ping ?? 'Fout'}ms`, inline: true  },
 					{ name: 'MariaDB', value: mariaDB, inline: true  },
 					{ name: 'S3', value: s3, inline: true  },
-					{ name: 'ClickHouse', value: clickHouse, inline: true },
 					{ name: 'PawTect', value: pawtect, inline: true },
 				)
 				.setThumbnail('attachment://bot.png');
@@ -115,15 +113,7 @@ export default class Events {
 	 */
 	messageEvents(): void {
 		this.client.on(discordEvents.MessageCreate, async (message: Message): Promise<void> => {
-			if (message.author.id === this.client.user?.id || message.author.bot) return;
-
-			Logging.info('Caching message');
-
-			try {
-				await insertMessage(message);
-			} catch (error) {
-				Logging.error(`Error while trying to cache message inside server logger: ${error}`);
-			}
+			if (isBot(message.author, this.client)) return;
 
 			if (!message.attachments.size) return;
 
@@ -155,7 +145,7 @@ export default class Events {
 			oldMessage: OmitPartialGroupDMChannel<Message<boolean> | PartialMessage>,
 			newMessage: OmitPartialGroupDMChannel<Message<boolean>>): Promise<void> => {
 
-			if (newMessage.author.id === this.client.user?.id || newMessage.author.bot) return;
+			if (isBot(newMessage.author, this.client)) return;
 
 			if (newMessage.content === oldMessage.content) return
 
@@ -231,7 +221,6 @@ export default class Events {
 					{ name: 'Bericht:', value: message.content || 'Geen inhoud' }
 				);
 
-			// Voeg "Door" toe als iemand anders het heeft verwijderd
 			if (
 				deletionLog &&
 				message.author &&
@@ -347,7 +336,7 @@ export default class Events {
 	 */
 	voiceChannelEvents(): void {
 		this.client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
-            Logging.debug(`Event VoiceStateUpdate triggered in Serverlogger/events.ts`)
+			Logging.debug(`Event VoiceStateUpdate triggered in Serverlogger/events.ts`)
 
 			try {
 				if (!oldState.channel && newState.channel) {
@@ -366,7 +355,6 @@ export default class Events {
 			} catch (error) {
 				Logging.error(`Error inside logging new member in vc: ${error}`)
 			}
-
 
 			try {
 				// If user leaves voice channel
@@ -415,10 +403,9 @@ export default class Events {
 	}
 
 	/**
-	 * Handles membership-related events in a Discord server, such as when members join, leave, are banned, unbanned, or updated.
-	 * Logs the events and sends an embed message to a designated channel with information about the membership event.
+	 * Handles membership-related events
 	 *
-	 * @return {Promise<void>} Resolves when the events are registered and handled properly.
+	 * @return {Promise<void>}
 	 */
 	async memberEvents(): Promise<void> {
 		// On member join is handles by invite tracker
