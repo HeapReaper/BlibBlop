@@ -7,6 +7,7 @@ import cron from 'node-cron';
 import {Logging} from '@utils/logging';
 import {getEnv} from '@utils/env';
 import QueryBuilder from '@utils/database';
+import { Color } from '@enums/ColorEnum';
 
 export default class Tasks {
 	private client: Client;
@@ -63,7 +64,7 @@ export default class Tasks {
 				const embed = new EmbedBuilder()
 					.setTitle('🏆 Foto Wedstrijd Winnaar!')
 					.setDescription(`Gefeliciteerd <@${message.author.id}>! 🎉\nJouw foto heeft de meeste stemmen gekregen!\nHij zal binnenkort verschijnen op onze [website](https://rc-garage.nl)!`)
-					.setColor(0xf1c40f)
+					.setColor(Color.Blue)
 					.setImage(imageUrl!)
 					.setFooter({ text: 'RC Garage foto wedstrijd' })
 					.setTimestamp();
