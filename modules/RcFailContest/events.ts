@@ -1,15 +1,15 @@
 import {
-    Client,
-    TextChannel,
-    Events as DiscordEvents,
-    EmbedBuilder
+  Client,
+  TextChannel,
+  Events as DiscordEvents,
+  EmbedBuilder
 } from 'discord.js';
 import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 import { isBot } from '@utils/isBot';
 import QueryBuilder from '@utils/database';
 import { externalLogToServer } from '../ServerLogger/events';
-import {Color} from "@enums/ColorEnum.ts";
+import { Color } from "@enums/ColorEnum.ts";
 
 export default class Events {
   private readonly client: Client;
@@ -52,7 +52,7 @@ export default class Events {
           return this.sendRuleNotification(rcFailsCh, 'Meer dan 1 afbeelding in het bericht');
         }
 
-        if (message.content.length > 30) {
+        if (message.content.length > 75) {
           Logging.info('Denied a photo contest post: To long of a message');
           await externalLogToServer(
         `Ik verwijderde een RC Fails post van <@${message.author.id}>: Tekst boven de 30 tekens`,
