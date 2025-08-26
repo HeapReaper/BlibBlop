@@ -84,17 +84,17 @@ export class Pawtect {
   ) {
     const embed =  {
       "title": "Beveiliging geactiveerd",
-        "description": "Door [Pawtect](https://pawtect.nl)",
+        "description": "Door [Pawtect](https://pawtect.heapreaper.nl)",
         "color": 15158332,
         "footer": {
         "text": "18-07-2025"
       },
       "thumbnail": {
-        "url": "https://pawtect.nl/assets/img/pawtect.png"
+        "url": "https://pawtect.heapreaper.nl/assets/img/pawtect.png"
       },
       "author": {
         "name": "Pawtect",
-          "icon_url": "https://pawtect.nl/assets/img/pawtect.png"
+          "icon_url": "https://pawtect.heapreaper.nl/assets/img/pawtect.png"
       },
       "fields": [
         {
