@@ -1,15 +1,15 @@
 import {
-    Client,
-    TextChannel,
-    Events as DiscordEvents,
-    EmbedBuilder
+  Client,
+  TextChannel,
+  Events as DiscordEvents,
+  EmbedBuilder
 } from 'discord.js';
 import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 import { isBot } from '@utils/isBot';
 import QueryBuilder from '@utils/database';
 import { externalLogToServer } from '../ServerLogger/events';
-import {Color} from "@enums/ColorEnum.ts";
+import { Color } from "@enums/ColorEnum.ts";
 
 export default class Events {
   private readonly client: Client;
