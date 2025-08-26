@@ -52,7 +52,7 @@ export default class Events {
           return this.sendRuleNotification(rcFailsCh, 'Meer dan 1 afbeelding in het bericht');
         }
 
-        if (message.content.length > 30) {
+        if (message.content.length > 75) {
           Logging.info('Denied a photo contest post: To long of a message');
           await externalLogToServer(
         `Ik verwijderde een RC Fails post van <@${message.author.id}>: Tekst boven de 30 tekens`,
