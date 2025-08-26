@@ -68,7 +68,7 @@ export default class Events {
 		const latestCommit = await Github.getLatestCommit();
 		const mariaDB = await QueryBuilder.isOnline() ? '✅ Online' : '❌ Offline';
 		const s3 = (await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status()).up ? '✅ Online' : '❌ Offline';
-		const pawtect: string = (await fetch('https://api.pawtect.nl/health')).status === 200 ? '✅ Online' : '❌ Offline';
+		const pawtect: string = (await fetch('https://api-pawtect.heapreaper.nl/health')).status === 200 ? '✅ Online' : '❌ Offline';
 
 		await new Promise<void>(resolve => {
 			const interval = setInterval((): void => {
