@@ -36,8 +36,6 @@ export default class Events {
                     msg.channelId === message.channelId
                 );
 
-                if (message.attachments.size === 0) return;
-
                 if (message.attachments.size === 0 || message.attachments.size > 1) {
                     Logging.info('Denied a photo contest post: To many images');
                     await externalLogToServer(
