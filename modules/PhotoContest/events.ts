@@ -28,12 +28,14 @@ export default class Events {
 
                 const photoContestCh = await this.client.channels.fetch(getEnv('PHOTO_CONTEST') as string) as TextChannel;
                 const messages = await photoContestCh.messages.fetch({ limit: 30 });
+
                 const todayAuthorMessages = messages.filter(
                   (msg) =>
                     this.ifIsToday(msg.createdAt) &&
                     msg.author.id === message.author.id &&
                     msg.channelId === message.channelId
                 );
+
                 if (message.attachments.size === 0 || message.attachments.size > 1) {
                     Logging.info('Denied a photo contest post: To many images');
                     await externalLogToServer(
@@ -53,10 +55,11 @@ export default class Events {
                     await message.delete();
                     return this.sendRuleNotification(photoContestCh, 'Tekst bij het bericht is boven de 30 tekens');
                 }
+
                 if (todayAuthorMessages.size > 1) {
                     Logging.info('Denied a photo contest post: Author already posted a message today');
                     await externalLogToServer(
-                      `Ik verwijderde een foto wedstrijd post van <@${message.author.id}>: Heeft al een bericht geplaatst vandaag`,
+                      `Ik verwijderde een RC fail post van <@${message.author.id}>: Heeft al een bericht geplaatst vandaag`,
                       this.client
                     );
                     await message.delete();
