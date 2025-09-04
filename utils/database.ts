@@ -3,9 +3,6 @@ import mysql, {QueryResult} from 'mysql2';
 import { Connection } from 'mysql2/typings/mysql/lib/Connection';
 import {Logging} from '@utils/logging';
 
-/**
- * Database abstraction.
- */
 class QueryBuilder {
     static connection: Connection;
     private _tableName: string | undefined;

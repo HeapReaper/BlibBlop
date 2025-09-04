@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="bliblopdb@192.168.1.23" uuid="b4dcc2d1-e13e-4c39-8d3c-bc6269fd55b8">
+    <data-source source="LOCAL" name="blibblop@192.168.1.143" uuid="b4dcc2d1-e13e-4c39-8d3c-bc6269fd55b8">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://192.168.1.23:3306/bliblopdb</jdbc-url>
+      <jdbc-url>jdbc:mariadb://192.168.1.143:3306/blibblop</jdbc-url>
       <jdbc-additional-properties>
         <property name="database.introspection.mysql.dbe5060" value="true" />
       </jdbc-additional-properties>
