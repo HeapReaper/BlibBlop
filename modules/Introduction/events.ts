@@ -7,8 +7,8 @@ import {
 } from 'discord.js';
 import { getEnv } from '@utils/env';
 import { isBot } from '@utils/isBot';
-import { externalLogToServer } from '../ServerLogger/events';
 import { Logging } from '@utils/logging.ts';
+import { LogToServer } from '@utils/logToServer.ts';
 
 export default class Events {
   private readonly client: Client;
@@ -38,10 +38,10 @@ export default class Events {
         Logging.info('Deleted intro channel message (user already posted)');
 
         await message.delete();
-        await externalLogToServer(
-          `Ik heb een extra intro bericht verwijderd van <@${message.author.id}>.`,
-          this.client
-        );
+
+        await LogToServer.warning(`Intro bericht verwijderd.`, [
+          { name: 'Gebruiker', value: `<@${message.author.id}>`}
+        ]);
       }
 
       await message.react('👋');

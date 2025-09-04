@@ -24,6 +24,7 @@ import { Color } from '@enums/ColorEnum'
 import db from '@utils/knex';
 import os from 'os';
 import { isBot } from '@utils/isBot';
+import {LogToServer} from '@utils/logToServer.ts';
 
 export async function externalLogToServer(message: string, client: Client) {
 	const logChannel = client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
@@ -294,17 +295,12 @@ export default class Events {
 
 			Logging.info('Reaction added to message!');
 
-			const messageReactionAddEmbed: EmbedBuilder = new EmbedBuilder()
-				.setColor(Color.Green)
-				.setTitle('Reactie toegevoegd')
-				.setThumbnail('attachment://happy-face-blue.png')
-				.addFields(
-					{ name: 'Gebruiker:', value: `<@${user.id ?? 'Fout'}>` },
-					{ name: 'Emoji:', value: `${reaction.emoji ?? 'Fout'}` },
-					{ name: 'Bericht:', value: `${reaction.message.url ?? 'Fout'}` }
-				);
+			await LogToServer.info('Reactie toegevoegd', [
+				{ name: 'Gebruiker', value: `<@${user.id}>` },
+				{ name: 'Emoji', value: `${reaction.emoji}` },
+				{ name: 'Bericht', value: `${reaction.message.url}` }
+			], 'attachment://happy-face-blue.png');
 
-			await this.logChannel.send({ embeds: [messageReactionAddEmbed], files: [this.reactionIcon] });
 		});
 
 		this.client.on(discordEvents.MessageReactionRemove, async (reaction, user) => {

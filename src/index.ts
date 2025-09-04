@@ -1,7 +1,8 @@
 import {
 	Client,
 	GatewayIntentBits,
-	Partials
+	Partials,
+	Events as DiscordEvents, TextChannel,
 } from 'discord.js';
 import loadModules from '@utils/moduleLoader';
 import { Logging } from '@utils/logging';
@@ -12,6 +13,7 @@ import * as process from 'node:process';
 import cron from 'node-cron';
 import { usersOnline } from '@utils/usersOnline';
 import { createWebServer } from '@utils/webServer';
+import { LogToServer } from '@utils/logToServer.ts';
 
 const client = new Client({
 	intents: [
@@ -32,7 +34,12 @@ const client = new Client({
 	],
 });
 
-client.on('ready', async client => {
+client.on(DiscordEvents.ClientReady, async client => {
+	const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
+	const logChannel = await guild.channels.fetch(getEnv('LOG') as string) as TextChannel;
+
+	LogToServer.init(logChannel);
+
 	// Load modules
 	try {
 		await loadModules(client);
