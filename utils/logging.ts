@@ -1,6 +1,7 @@
 import { getEnv } from '@utils/env.ts';
 import chalk from 'chalk';
 import { appendFileSync } from 'fs';
+import { LogToServer } from '@utils/logToServer';
 
 export class Logging {
 	private static now(): Date {
@@ -63,26 +64,28 @@ export class Logging {
 	}
 
 	private static async sendLogToDiscord(error: string | number): Promise<void> {
-		if (getEnv('ENVIRONMENT') === 'development') return;
+		// if (getEnv('ENVIRONMENT') === 'development') return;
+		//
+		// const webhookURL: string = <string>getEnv('LOG_DISCORD_WEBHOOK');
+		//
+		// if (!webhookURL) {
+		// 	Logging.error(`Could not find webhook URL in "sendLogToDiscord"`);
+		// 	return;
+		// }
+		//
+		// try {
+		// 	await fetch(webhookURL, {
+		// 		method: 'POST',
+		// 		headers: { 'Content-Type': 'application/json' },
+		// 		body: JSON.stringify({
+		// 			content: `${<string>getEnv('LOG_DISCORD_TAG')}Bot error: ${error}`,
+		// 		}),
+		// 	});
+		// } catch (error: any) {
+		// 	Logging.error(error);
+		// }
 
-		const webhookURL: string = <string>getEnv('LOG_DISCORD_WEBHOOK');
-
-		if (!webhookURL) {
-			Logging.error(`Could not find webhook URL in "sendLogToDiscord"`);
-			return;
-		}
-
-		try {
-			await fetch(webhookURL, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					content: `${<string>getEnv('LOG_DISCORD_TAG')}Bot error: ${error}`,
-				}),
-			});
-		} catch (error: any) {
-			Logging.error(error);
-		}
+		await LogToServer.error(error as string)
 	}
 
 	private static formatDate(now: Date): string {

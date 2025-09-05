@@ -8,8 +8,8 @@ import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 import { isBot } from '@utils/isBot';
 import QueryBuilder from '@utils/database';
-import { externalLogToServer } from '../ServerLogger/events';
 import { Color } from "@enums/ColorEnum.ts";
+import { LogToServer } from '@utils/logToServer';
 
 export default class Events {
   private readonly client: Client;
@@ -44,30 +44,39 @@ export default class Events {
 
         if (message.attachments.size > 1) {
           Logging.info('Denied a RC fails post: To many images');
-          await externalLogToServer(
-        `Ik verwijderde een RC fails post van <@${message.author.id}: Meer dan 1 afbeelding in het bericht`,
-            this.client
-          );
+
+          await LogToServer.warning('[bot] Bericht verwijderd', [
+            { name: 'Van', value: `<@${message.author.id}>`},
+            { name: 'Kanaal', value: `<#${message.channel.id}>`},
+            { name: 'Reden', value: `Meer dan 1 afbeelding in bericht`},
+          ])
+
           await message.delete();
           return this.sendRuleNotification(rcFailsCh, 'Meer dan 1 afbeelding in het bericht');
         }
 
         if (message.content.length > 75) {
           Logging.info('Denied a photo contest post: To long of a message');
-          await externalLogToServer(
-        `Ik verwijderde een RC Fails post van <@${message.author.id}>: Tekst boven de 30 tekens`,
-            this.client
-          );
+
+          await LogToServer.warning('[bot] Bericht verwijderd', [
+            { name: 'Van', value: `<@${message.author.id}>`},
+            { name: 'Kanaal', value: `<#${message.channel.id}>`},
+            { name: 'Reden', value: `Tekst boven de 75 tekens`},
+          ])
+
           await message.delete();
           return this.sendRuleNotification(rcFailsCh, 'Tekst bij bericht boven de 30 tekens');
         }
 
         if (todayAuthorMessages.size > 1) {
           Logging.info('Denied a photo contest post: Author already posted a message today');
-          await externalLogToServer(
-            `Ik verwijderde een foto wedstrijd post van <@${message.author.id}>: Heeft al een bericht geplaatst vandaag`,
-            this.client
-          );
+
+          await LogToServer.warning('[bot] Bericht verwijderd', [
+            { name: 'Van', value: `<@${message.author.id}>`},
+            { name: 'Kanaal', value: `<#${message.channel.id}>`},
+            { name: 'Reden', value: `Heeft al een bericht geplaatst vandaag`},
+          ])
+
           await message.delete();
           return this.sendRuleNotification(rcFailsCh, 'Je hebt al een fail geplaatst vandaag');
         }
@@ -103,10 +112,12 @@ export default class Events {
           // @ts-ignore
           if (reaction.message.author.id == this.client.user.id) {
             await reaction.users.remove(user.id);
-            await externalLogToServer(
-              `Een stem verwijderd van <@${user.id ?? '0000'}> die in Rc-fails een reactie op de bot plaatste`,
-              this.client
-            );
+
+            await LogToServer.warning('[bot] Reactie verwijderd', [
+              { name: 'Van', value: `<@${reaction.message.author?.id}>`},
+              { name: 'Kanaal', value: `<#${reaction.message.channel.id}>`},
+              { name: 'Reden', value: `Reactie op de bot`},
+            ])
 
             await this.sendRuleNotification(rcFailsCh, 'Je kunt geen reactie op een bot plaatsen!');
 
@@ -117,10 +128,12 @@ export default class Events {
           // @ts-ignore
           if (reaction.message.author.id == user.id) {
             await reaction.users.remove(user.id);
-            await externalLogToServer(
-              `Een stem verwijderd van <@${user.id ?? '0000'}> die op zijn eigen bericht wou stemmen.`,
-              this.client
-            );
+
+            await LogToServer.warning('[bot] Reactie verwijderd', [
+              { name: 'Van', value: `<@${reaction.message.author?.id}>`},
+              { name: 'Kanaal', value: `<#${reaction.message.channel.id}>`},
+              { name: 'Reden', value: `Wou op zijn eigen bericht stemmen`},
+            ])
 
             await this.sendRuleNotification(rcFailsCh, 'Je kunt niet op jezelf stemmen.');
 
@@ -142,10 +155,12 @@ export default class Events {
 
           if (currVotes[0].cnt > 2) {
             await reaction.users.remove(user.id);
-            await externalLogToServer(
-              `Een stem verwijderd van <@${user.id ?? '0000'}> die deze maand al gestemd had!`,
-              this.client
-            );
+
+            await LogToServer.warning('[bot] Reactie verwijderd', [
+              { name: 'Van', value: `<@${reaction.message.author?.id}>`},
+              { name: 'Kanaal', value: `<#${reaction.message.channel.id}>`},
+              { name: 'Reden', value: `Heeft al twee keer gestemd deze maand`},
+            ])
 
             await this.sendRuleNotification(rcFailsCh, 'Je hebt teveel gestemd! Max 2 per maand.');
 
@@ -163,6 +178,7 @@ export default class Events {
               channel_id: reaction.message.channel.id
             })
             .execute();
+
           Logging.info(`Added vote to the DB`);
         } catch (error) {
           Logging.error(`Error inside onPhotoContestReaction: ${error}`);

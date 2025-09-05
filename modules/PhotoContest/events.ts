@@ -38,6 +38,7 @@ export default class Events {
 
                 if (message.attachments.size === 0 || message.attachments.size > 1) {
                     Logging.info('Denied a photo contest post: To many images');
+
                     await externalLogToServer(
                       `Ik verwijderde een foto wedstrijd post van <@${message.author.id}: Meer dan 1 afbeelding in het bericht`,
                       this.client
@@ -97,6 +98,7 @@ export default class Events {
                 // @ts-ignore
                 if (reaction.message.author.id == this.client.user.id) {
                     await reaction.users.remove(user.id);
+
                     await externalLogToServer(
                       `Een stem verwijderd van <@${user.id ?? '0000'}> die in foto-wedstrijd een reactie op de bot plaatste`,
                       this.client

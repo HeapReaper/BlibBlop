@@ -39,8 +39,9 @@ export default class Events {
 
         await message.delete();
 
-        await LogToServer.warning(`Intro bericht verwijderd.`, [
-          { name: 'Gebruiker', value: `<@${message.author.id}>`}
+        await LogToServer.warning(`[bot] Verwijderd: Intro bericht`, [
+          { name: 'Van', value: `<@${message.author.id}>`},
+          { name: 'Reden', value: `Meer dan 1 bericht in introductie kanaal`},
         ]);
       }
 

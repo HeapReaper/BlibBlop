@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 import QueryBuilder from '@utils/database';
 import { Color } from '@enums/ColorEnum';
+
 export default class CommandsListener {
 	private client: Client;
 
