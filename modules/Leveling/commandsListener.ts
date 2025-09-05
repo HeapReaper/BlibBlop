@@ -5,7 +5,6 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 import QueryBuilder from '@utils/database';
-import { chClient } from '@utils/clickhouse';
 import { Color } from '@enums/ColorEnum';
 export default class CommandsListener {
 	private client: Client;
@@ -71,29 +70,12 @@ export default class CommandsListener {
 			})
 			.first();
 
-		const resultSet = await chClient.query({
-			query: `
-    	SELECT COUNT(*) AS message_count
-    	FROM discord_messages
-    	WHERE author_id = {author_id: String}
-    	  AND is_reaction = false
-  		`,
-			format: 'JSONEachRow',
-			query_params: {
-				author_id: `${interaction.user.id}`,
-			},
-		});
-
-		// @ts-ignore
-		const [{message_count}] = await resultSet.json();
-
 		const embed = new EmbedBuilder()
 			.setTitle('Profiel')
 			.setColor(Color.Blue)
 			.addFields(
 				{ name: 'XP', value: `${dbRes.xp ?? '0'}` },
 				{ name: 'Level', value: `${dbRes.level ?? '0'}` },
-				{ name: 'Aantal berichten', value: `${message_count ?? '0'}` },
 			)
 
 		await interaction.reply({embeds: [embed]});
