@@ -4,7 +4,7 @@ import promClient from 'prom-client';
 import { Logging } from '@utils/logging';
 import { userStatussen } from '@utils/usersOnline';
 import { getEnv } from '@utils/env';
-import { Client } from 'discord.js';
+import {Client, EmbedBuilder} from 'discord.js';
 import { usersOnline } from '@utils/usersOnline';
 import cron from 'node-cron';
 
