@@ -15,8 +15,8 @@ export default class Tasks {
 		this.client = client;
 		this.generalChannel = this.client.channels.cache.get(getEnv('GENERAL') as string) as TextChannel;
 
-		// Runs one time a day at 19:00
-		cron.schedule('0 19 * * *', async () => {
+		// Runs on tuesday, thursday and saturday
+		cron.schedule('0 19 * * Tue,Thu,Sat', async () => {
 			void this.disboardReview();
 		});
 
