@@ -69,7 +69,6 @@ export default class Events {
 		const latestCommit = await Github.getLatestCommit();
 		const mariaDB = await QueryBuilder.isOnline() ? '✅ Online' : '❌ Offline';
 		const s3 = (await S3OperationBuilder.setBucket(getEnv('S3_BUCKET_NAME') as string).status()).up ? '✅ Online' : '❌ Offline';
-		const pawtect: string = (await fetch('https://api-pawtect.heapreaper.nl/health')).status === 200 ? '✅ Online' : '❌ Offline';
 
 		await new Promise<void>(resolve => {
 			const interval = setInterval((): void => {
@@ -91,7 +90,6 @@ export default class Events {
 				{ name: 'Ping:', value: `${this.client.ws.ping ?? 'Fout'}ms`, inline: true  },
 				{ name: 'MariaDB', value: mariaDB, inline: true  },
 				{ name: 'S3', value: s3, inline: true  },
-				{ name: 'PawTect', value: pawtect, inline: true },
 			)
 			.setThumbnail('attachment://bot.png');
 
