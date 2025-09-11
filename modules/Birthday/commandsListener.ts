@@ -5,11 +5,12 @@ import {
 	MessageFlags,
 	PermissionsBitField,
 	EmbedBuilder,
-} from 'discord.js';
-import { Logging } from '@utils/logging';
-import QueryBuilder from '@utils/database';
-import { Color } from '@enums/ColorEnum';
-import { formatDate } from '@utils/formatDate';
+} from "discord.js";
+import { Logging } from "@utils/logging";
+import QueryBuilder from "@utils/database";
+import { Color } from "@enums/ColorEnum";
+import { formatDate } from "@utils/formatDate";
+import { LogToServer } from "@utils/logToServer.ts";
 
 export default class CommandsListener {
 	private client: Client;
@@ -27,16 +28,16 @@ export default class CommandsListener {
 			// @ts-ignore
 			const subCommandName: string | null = interaction.options.getSubcommand(false); // `false` = required = false
 
-			if (commandName !== 'verjaardag') return;
+			if (commandName !== "verjaardag") return;
 
 			switch (subCommandName) {
-				case 'toevoegen':
+				case "toevoegen":
 					void this.birthdayAdd(interaction);
 					break;
-				case 'verwijderen':
+				case "verwijderen":
 					void this.birthdayRemove(interaction);
 					break;
-				case 'lijst':
+				case "lijst":
 					void this.birthdayList(interaction);
 					break;
 			}
@@ -45,52 +46,60 @@ export default class CommandsListener {
 
 	async birthdayAdd(interaction: Interaction): Promise<void> {
 		if (!interaction.isCommand()) return;
-		Logging.info('Adding a birthday');
+		Logging.info("Adding a birthday");
 
 		try {
 			// @ts-ignore
-			if (await QueryBuilder.select('birthday').where({user_id: interaction.user.id}).count().get() !== 0) {
-				await interaction.reply({content: 'Je hebt jezelf al toegevoegd aan de verjaardag functie!', flags: MessageFlags.Ephemeral});
+			if (await QueryBuilder.select("birthday").where({user_id: interaction.user.id}).count().get() !== 0) {
+				await interaction.reply({content: "Je hebt jezelf al toegevoegd aan de verjaardag functie!", flags: MessageFlags.Ephemeral});
 				return;
 			}
 
 			await QueryBuilder
-				.insert('birthday')
+				.insert("birthday")
 				.values({
 					user_id: interaction.user.id,
 					// @ts-ignore
-					birthdate: `${interaction.options.getInteger('jaar')}-${interaction.options.getInteger('maand')}-${interaction.options.getInteger('dag')}`
+					birthdate: `${interaction.options.getInteger("jaar")}-${interaction.options.getInteger("maand")}-${interaction.options.getInteger("dag")}`
 				})
 				.execute();
 
-			await interaction.reply({content: 'Je verjaardag is in AllDayBot toegevoegd!', flags: MessageFlags.Ephemeral});
+			await LogToServer.info("Verjaardag toegevoegd", [
+				{ name: "Gebruiker", value: `<@${interaction.user.id}>` }
+			]);
+
+			await interaction.reply({content: "Je verjaardag is in AllDayBot toegevoegd!", flags: MessageFlags.Ephemeral});
 		} catch (error) {
 			Logging.error(`Error inside commandListener for Birthday: ${error}`);
-			await interaction.reply({content: 'Er ging iets mis! Het probleem is gerapporteerd aan de developer.', flags: MessageFlags.Ephemeral});
+			await interaction.reply({content: "Er ging iets mis! Het probleem is gerapporteerd aan de developer.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 	}
 
 	async birthdayRemove(interaction: Interaction): Promise<void> {
 		if (!interaction.isCommand()) return;
-		Logging.info('Deleted a birthday');
+		Logging.info("Deleted a birthday");
 
 		try {
 			// @ts-ignore
-			if (await QueryBuilder.select('birthday').where({user_id: interaction.user.id}).count().get() === 0) {
-				await interaction.reply({content: 'Je hebt geen verjaardag in AllDayBot staan!', flags: MessageFlags.Ephemeral});
+			if (await QueryBuilder.select("birthday").where({user_id: interaction.user.id}).count().get() === 0) {
+				await interaction.reply({content: "Je hebt geen verjaardag in AllDayBot staan!", flags: MessageFlags.Ephemeral});
 				return;
 			}
 
 			await QueryBuilder
-				.delete('birthday')
+				.delete("birthday")
 				.where({user_id: interaction.user.id})
 				.execute();
 
-			await interaction.reply({content: 'Je verjaardag is uit AllDayBot gehaald!', flags: MessageFlags.Ephemeral});
+			await LogToServer.info("Verjaardag verwijderd", [
+				{ name: "Gebruiker", value: `<@${interaction.user.id}>` }
+			]);
+
+			await interaction.reply({content: "Je verjaardag is uit AllDayBot gehaald!", flags: MessageFlags.Ephemeral});
 		} catch (error) {
 			Logging.error(`Something went wrong while deleting birthday: ${error}`);
-			await interaction.reply({content: 'Er ging iets mis! Het probleem is gerapporteerd aan de developer.', flags: MessageFlags.Ephemeral});
+			await interaction.reply({content: "Er ging iets mis! Het probleem is gerapporteerd aan de developer.", flags: MessageFlags.Ephemeral});
 			return
 		}
 	}
@@ -100,7 +109,7 @@ export default class CommandsListener {
 
 		if (!interaction.member) {
 			await interaction.reply({
-				content: 'Oeps, er ging iets mis!',
+				content: "Oeps, er ging iets mis!",
 				flags: MessageFlags.Ephemeral,
 			});
 
@@ -110,7 +119,7 @@ export default class CommandsListener {
 		// @ts-ignore
 		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
 			await interaction.reply({
-				content: 'Oeps, je hebt er geen toegang tot!',
+				content: "Oeps, je hebt er geen toegang tot!",
 				flags: MessageFlags.Ephemeral,
 			});
 
@@ -118,12 +127,12 @@ export default class CommandsListener {
 		}
 
 		const birthdays = await QueryBuilder
-			.select('birthday')
+			.select("birthday")
 			.execute();
 
 		const embed = new EmbedBuilder()
 			.setColor(Color.AeroBytesBlue)
-			.setTitle('Verjaardagen')
+			.setTitle("Verjaardagen")
 
 		for (const birthday of birthdays) {
 			const user = await this.client.users.fetch(birthday.user_id);
