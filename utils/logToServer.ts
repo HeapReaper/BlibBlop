@@ -1,6 +1,5 @@
 import { TextChannel, EmbedBuilder, ColorResolvable, Attachment } from "discord.js";
 
-
 export class LogToServer {
   private static logChannel: TextChannel;
   private static defaultThumbnail?: string | Attachment;
