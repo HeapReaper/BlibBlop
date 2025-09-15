@@ -21,7 +21,7 @@ export default class Tasks {
 	}
 
 	async task() {
-		Logging.info('Checking if a new article has been posted on the site...');
+		Logging.trace('Checking if a new article has been posted on the site...');
 
 		try {
 			const response = await fetch('https://strapi.rc-garage.nl/api/articles?populate=*&sort=createdAt:desc&pagination[limit]=1');
