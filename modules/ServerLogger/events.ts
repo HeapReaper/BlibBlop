@@ -24,7 +24,8 @@ import { Color } from '@enums/ColorEnum'
 import db from '@utils/knex';
 import os from 'os';
 import { isBot } from '@utils/isBot';
-import {LogToServer} from '@utils/logToServer.ts';
+import { LogToServer } from '@utils/logToServer.ts';
+import { Faker } from "@heapreaper/discordfaker";
 
 export async function externalLogToServer(message: string, client: Client) {
 	const logChannel = client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
@@ -397,9 +398,23 @@ export default class Events {
 	 * @return {Promise<void>}
 	 */
 	async memberEvents(): Promise<void> {
-		// On member join is handles by invite tracker
+		this.client.on(discordEvents.GuildMemberAdd, async (member: GuildMember | PartialGuildMember): Promise<void> => {
+			Logging.info(`A user with the name ${member.user.displayName} joined this Discord!`);
+
+			const memberEventEmbed = new EmbedBuilder()
+				.setColor(Color.Red)
+				.setTitle('Lid bijgekomen')
+				.setThumbnail('attachment://user.png')
+				.addFields(
+					{ name: 'Gebruiker:', value: `<@${member.id ?? 'Fout'}>` },
+					{ name: 'Lid sinds:', value: `${(member.joinedAt?.toLocaleString('nl-NL') ?? 'Fout') }` },
+				);
+
+			await this.logChannel.send({ embeds: [memberEventEmbed], files: [this.userIcon] });
+		});
+
 		this.client.on(discordEvents.GuildMemberRemove, async (member: GuildMember|PartialGuildMember): Promise<void> => {
-			Logging.info('A user left this Discord!');
+			Logging.info(`A user with the name ${member.user.displayName} left this Discord!`);
 
 			const memberEventEmbed = new EmbedBuilder()
 				.setColor(Color.Red)
