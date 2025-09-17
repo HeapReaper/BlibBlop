@@ -25,6 +25,7 @@ import db from '@utils/knex';
 import os from 'os';
 import { isBot } from '@utils/isBot';
 import { LogToServer } from '@utils/logToServer.ts';
+import { Faker } from "@heapreaper/discordfaker";
 
 export async function externalLogToServer(message: string, client: Client) {
 	const logChannel = client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;

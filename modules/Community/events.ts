@@ -1,28 +1,26 @@
 import {
-  Client,
-  TextChannel,
-  Events as DiscordEvents,
-  GuildMember,
-  PartialGuildMember,
-  EmbedBuilder
+    Client,
+    TextChannel,
+    Events as DiscordEvents,
+    GuildMember,
+    PartialGuildMember, MessageFlags
 } from "discord.js";
 import { getEnv } from "@utils/env";
 import { Logging } from "@utils/logging";
-import { Color } from "@enums/ColorEnum";
 
 export default class Events {
-    private readonly client: Client;
+    private client: Client;
     private welcomeMessages: Array<string> = [
-      "🎮 | {user}, welkom bij RC Club Nederland! \nOf je nu rijdt, vaart of vliegt – met auto’s, helikopters, vliegtuigen, boten of drones – hier zit je goed!\n<@&1417795877157732363>, heten jullie {user} welkom?",
-      "🔥 | {user}, welkom in de wereld van RC! \nVan brullende motoren op de baan tot rustige landingen op het water – alle piloten en bestuurders zijn hier welkom.\n<@&1417795877157732363>, geven jullie een warm welkom?",
-      "🛩️ | {user}, welkom bij RC Club Nederland! \nOf je nu zweeft met een vliegtuig, drift met een auto, vliegt met een drone, spint met een heli of vaart met een boot – deel je passie!\n<@&1417795877157732363>, zwaaien jullie even?",
-      "🚁 | {user}, welkom, RC-liefhebber! \nAuto’s, helikopters, vliegtuigen, boten of drones – alles wat op afstand bestuurd wordt leeft hier.\n<@&1417795877157732363>, maken jullie het gezellig?",
-      "💬 | {user}, welkom in de community! \nOf je nu over asfalt scheurt, door het luchtruim vliegt of over het water glijdt – wij zijn benieuwd naar jouw RC-verhaal.\n<@&1417795877157732363>, wie zegt gedag?",
-      "✈️ | {user}, welkom aan boord! \nVan luchtacrobatiek met je heli tot high-speed bochten met je RC-auto – hier delen we het allemaal.\n<@&1417795877157732363>, zwaaien jullie de nieuwe piloot binnen?",
-      "🛥️ | {user}, welkom in onze RC-haven! \nAuto, boot, drone, heli of vliegtuig – vaar, rij en vlieg met ons mee in deze hobbywereld.\n<@&1417795877157732363>, heten jullie hem/haar welkom aan wal?",
-      "🌪️ | {user}, welkom bij RC Club Nederland! \nWaar snelheid op vier wielen, precisie in de lucht en kracht op het water samenkomen.\n<@&1417795877157732363>, zetten jullie de toon?",
-      "📸 | {user}, welkom! \nLaat je projecten zien – of je nu sleutelt aan een auto, heli, vliegtuig, drone of boot. We zijn benieuwd naar je RC-creaties!\n<@&1417795877157732363>, klaar om hem/haar te verwelkomen?",
-      "🧰 | {user}, welkom techneut! \nRC-auto’s, helikopters, vliegtuigen, boten en drones – elk project is welkom hier. Laat die setups maar zien!\n<@&1417795877157732363>, geven jullie een welkom aan deze bouwer?",
+      "🎮 | {user}, welkom bij RC Club Nederland! \nOf je nu rijdt, vaart of vliegt – met auto’s, helikopters, vliegtuigen, boten of drones – hier zit je goed!",
+      "🔥 | {user}, welkom in de wereld van RC! \nVan brullende motoren op de baan tot rustige landingen op het water – alle piloten en bestuurders zijn hier welkom.",
+      "🛩️ | {user}, welkom bij RC Club Nederland! \nOf je nu zweeft met een vliegtuig, drift met een auto, vliegt met een drone, spint met een heli of vaart met een boot – deel je passie!",
+      "🚁 | {user}, welkom, RC-liefhebber! \nAuto’s, helikopters, vliegtuigen, boten of drones – alles wat op afstand bestuurd wordt leeft hier.",
+      "💬 | {user}, welkom in de community! \nOf je nu over asfalt scheurt, door het luchtruim vliegt of over het water glijdt – wij zijn benieuwd naar jouw RC-verhaal.",
+      "✈️ | {user}, welkom aan boord! \nVan luchtacrobatiek met je heli tot high-speed bochten met je RC-auto – hier delen we het allemaal.",
+      "🛥️ | {user}, welkom in onze RC-haven! \nAuto, boot, drone, heli of vliegtuig – vaar, rij en vlieg met ons mee in deze hobbywereld.",
+      "🌪️ | {user}, welkom bij RC Club Nederland! \nWaar snelheid op vier wielen, precisie in de lucht en kracht op het water samenkomen.",
+      "📸 | {user}, welkom! \nLaat je projecten zien – of je nu sleutelt aan een auto, heli, vliegtuig, drone of boot. We zijn benieuwd naar je RC-creaties!",
+      "🧰 | {user}, welkom techneut! \nRC-auto’s, helikopters, vliegtuigen, boten en drones – elk project is welkom hier. Laat die setups maar zien!",
     ];
     private goodbyeMessages: Array<string> = [
       "👋 | {user} heeft RC Club Nederland verlaten. \nWe hopen dat je mooie momenten hebt gehad – blijf vooral genieten van de RC-hobby!",
@@ -60,13 +58,7 @@ export default class Events {
         const welcomeRole = member.guild.roles.cache.get(<string>getEnv("PASSAGIER"));
 
         const welcomeMessage: string = this.welcomeMessages[Math.floor(Math.random() * this.welcomeMessages.length)];
-
-        const embed: EmbedBuilder = new EmbedBuilder()
-          .setColor(Color.Blue)
-          .setTitle('We hebben een nieuw lid in de club!')
-          .setDescription(welcomeMessage.replace(/{user}/g, `<@${member.user.id}>`))
-
-        await channel.send({ embeds: [embed] });
+        await channel.send(welcomeMessage.replace(/{user}/g, `<@${member.user.id}>`));
 
         if (!channel || !channel.isTextBased()) {
           Logging.error(`Channel not found or is not a text channel in Welcome event`);
@@ -100,13 +92,7 @@ export default class Events {
         }
 
         const goodbyeMessage: string = this.goodbyeMessages[Math.floor(Math.random() * this.goodbyeMessages.length)];
-
-        const embed: EmbedBuilder = new EmbedBuilder()
-          .setColor(Color.Blue)
-          .setTitle('Een lid heeft de club verlaten.')
-          .setDescription(goodbyeMessage.replace(/{user}/g, `<@${member.user.id}>`))
-
-        await channel.send({ embeds: [embed] });
+        await channel.send(goodbyeMessage.replace(/{user}/g, `<@${member.user.id}>`));
       });
     }
 
