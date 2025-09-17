@@ -1,6 +1,11 @@
-import {Client, EmbedBuilder, TextChannel} from 'discord.js';
-import { getEnv } from '../../utils/env.ts';
-import { Logging } from "../../utils/logging.ts";
+import {
+	Client,
+	EmbedBuilder,
+	TextChannel
+} from 'discord.js';
+import { getEnv } from '@utils/env';
+import { Logging } from "@utils/logging";
+import { Color } from "@enums/ColorEnum";
 
 export default class BumpReminderTasks {
 	private client: Client;
@@ -39,7 +44,7 @@ export default class BumpReminderTasks {
 					// @ts-ignore
 					if (lastMessage.createdTimestamp < Date.now() - (2 * 60 * 60 * 1000)) {
 						const embed = new EmbedBuilder()
-							.setColor(0x2563EB)
+							.setColor(Color.Blue)
 							.setTitle('RC Garage Herinnering')
 							.setDescription('De server kan weer gebumped worden! Dit kan met het command `/bump`.\nJe helpt de server daarmee groeien!')
 
