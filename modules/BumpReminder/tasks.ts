@@ -1,6 +1,7 @@
-import {Client, EmbedBuilder, TextChannel} from 'discord.js';
-import { getEnv } from '../../utils/env.ts';
-import { Logging } from "../../utils/logging.ts";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import { getEnv } from "@utils/env";
+import { Logging } from "@utils/logging";
+import { Color } from "@enums/ColorEnum";
 
 export default class BumpReminderTasks {
 	private client: Client;
@@ -10,7 +11,7 @@ export default class BumpReminderTasks {
 		this.client = client;
 		this.bumpChannel = this.client.channels.cache.get(
 			// @ts-ignore
-			getEnv('BUMP') !== undefined ? getEnv('BUMP') : Logging.error('BUMP channel not found in env!')
+			getEnv("BUMP") !== undefined ? getEnv("BUMP") : Logging.error("BUMP channel not found in env!")
 		) as TextChannel;
 		
 		this.bumpReminderTask();
@@ -19,10 +20,10 @@ export default class BumpReminderTasks {
 	bumpReminderTask(): void {
 		try {
 			setInterval(async () => {
-				Logging.trace('Checking if the server can be bumped again!');
+				Logging.trace("Checking if the server can be bumped again!");
 
 				if (!this.bumpChannel) {
-					Logging.warn('bumpChannel is undefined!');
+					Logging.warn("bumpChannel is undefined!");
 					return;
 				}
 
@@ -39,9 +40,9 @@ export default class BumpReminderTasks {
 					// @ts-ignore
 					if (lastMessage.createdTimestamp < Date.now() - (2 * 60 * 60 * 1000)) {
 						const embed = new EmbedBuilder()
-							.setColor(0x2563EB)
-							.setTitle('RC Garage Herinnering')
-							.setDescription('De server kan weer gebumped worden! Dit kan met het command `/bump`.\nJe helpt de server daarmee groeien!')
+							.setColor(Color.Blue)
+							.setTitle("RC Garage Herinnering")
+							.setDescription("De server kan weer gebumped worden! Dit kan met het command `/bump`.\nJe helpt de server daarmee groeien!")
 
 						await this.bumpChannel.send({ embeds: [embed]});
 					}
