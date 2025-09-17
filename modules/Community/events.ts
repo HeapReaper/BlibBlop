@@ -41,7 +41,8 @@ export default class Events {
     this.client = client;
     void this.sendWelcomeMessage();
     void this.sendLeaveMessage();
-    Faker.memberAdd(this.client)
+    //Faker.memberAdd(this.client)
+    //Faker.memberRemove(this.client)
   }
 
   async sendWelcomeMessage(): Promise<void> {
@@ -53,7 +54,7 @@ export default class Events {
 
       const embed: EmbedBuilder = new EmbedBuilder()
         .setColor(Color.Blue)
-        .setTitle('Er is een nieuw lid bij ons gekomen!')
+        .setTitle('We hebben een nieuw lid in de club!')
         .setDescription(welcomeMessage.replace(/{user}/g, `<@${member.user.id}>`))
 
       await channel.send({ embeds: [embed] });
@@ -90,7 +91,13 @@ export default class Events {
       }
 
       const goodbyeMessage: string = this.goodbyeMessages[Math.floor(Math.random() * this.goodbyeMessages.length)];
-      await channel.send(goodbyeMessage.replace(/{user}/g, `<@${member.user.id}>`));
+
+      const embed: EmbedBuilder = new EmbedBuilder()
+        .setColor(Color.Blue)
+        .setTitle('Een lid heeft de club verlaten.')
+        .setDescription(goodbyeMessage.replace(/{user}/g, `<@${member.user.id}>`))
+
+      await channel.send({ embeds: [embed] });
     });
   }
 }
