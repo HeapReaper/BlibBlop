@@ -1,5 +1,5 @@
-import { mkdirSync, existsSync, writeFileSync } from 'fs';
-import * as process from 'node:process';
+import { mkdirSync, existsSync, writeFileSync } from "fs";
+import * as process from "node:process";
 
 export async function makeNewModule(name: string) {
 
@@ -17,7 +17,7 @@ export async function makeNewModule(name: string) {
     mkdirSync(`${modulesDir}/${moduleNameToCreate}`);
 
     const commandsFileWrite =
-      `import { SlashCommandBuilder } from 'discord.js';
+      `import { SlashCommandBuilder } from "discord.js";
 
 export const commands = [
 
@@ -25,9 +25,9 @@ export const commands = [
 `;
 
     const commandsListenerFileWrite =
-      `import { Client, Interaction, Events, MessageFlags} from 'discord.js';
-import Database from '@utils/database';
-import { Logging } from '@utils/logging';
+      `import { Client, Interaction, Events, MessageFlags} from "discord.js";
+import Database from "@utils/database";
+import { Logging } from "@utils/logging";
 
 export default class CommandsListener {
 	private client: Client;
@@ -44,7 +44,7 @@ export default class CommandsListener {
 `;
 
     const eventsFileWrite =
-      `import { Client, TextChannel } from 'discord.js';
+      `import { Client, TextChannel } from "discord.js";
 
 export default class Events {
     private client: Client;
@@ -56,7 +56,7 @@ export default class Events {
 `;
 
     const tasksFileWrite =
-      `import { Client, TextChannel } from 'discord.js';
+      `import { Client, TextChannel } from "discord.js";
 
 export default class Tasks {
 	private client: Client;
@@ -73,5 +73,5 @@ export default class Tasks {
     writeFileSync(`${modulesDir}/${moduleNameToCreate}/events.ts`, eventsFileWrite);
     writeFileSync(`${modulesDir}/${moduleNameToCreate}/tasks.ts`, tasksFileWrite);
 
-    console.log('I created the module!');
+    console.log("I created the module!");
 }

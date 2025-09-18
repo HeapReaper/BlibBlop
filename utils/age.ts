@@ -14,6 +14,6 @@ export function calcAge(birthDate: Date): number {
 }
 
 export function formatDate(date: string) {
-  const [year, month, day] = date.split('-');
+  const [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
 }

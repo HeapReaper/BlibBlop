@@ -7,14 +7,14 @@ export class Pawtect {
   private static async sendRequest(
     endpoint: string,
     payload: any,
-    apiKey: string = '',
-    method: string = 'POST'
+    apiKey: string = "",
+    method: string = "POST"
   ): Promise<Response> {
     return await fetch(`https://api-pawtect.heapreaper.nl/${endpoint}`, {
       method,
       headers: {
-        'Content-Type': 'application/json',
-        ...(apiKey && { 'Authorization': `Bearer ${apiKey}` }),
+        "Content-Type": "application/json",
+        ...(apiKey && { "Authorization": `Bearer ${apiKey}` }),
       },
       body: JSON.stringify(payload),
     });
@@ -30,7 +30,7 @@ export class Pawtect {
       message_count: 0,
     };
 
-    const req = await this.sendRequest('event/message', { message: payload, rules });
+    const req = await this.sendRequest("event/message", { message: payload, rules });
 
     if (req.status !== StatusCodes.OK) {
       return {
@@ -41,11 +41,11 @@ export class Pawtect {
 
     return {
       status: StatusCodes.OK,
-      reason: 'Message is allowed',
+      reason: "Message is allowed",
     };
   }
 
-  static async onJoin(member: import('discord.js').GuildMember, rules: any): Promise<{ status: StatusCodes; reason: string }> {
+  static async onJoin(member: import("discord.js").GuildMember, rules: any): Promise<{ status: StatusCodes; reason: string }> {
     const createdAt = member.user.createdAt;
     const now = new Date();
     const accountAgeDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
@@ -58,7 +58,7 @@ export class Pawtect {
       rules,
     };
 
-    const req = await this.sendRequest('event/join', payload);
+    const req = await this.sendRequest("event/join", payload);
 
     if (req.status !== StatusCodes.OK) {
       return {
@@ -69,7 +69,7 @@ export class Pawtect {
 
     return {
       status: StatusCodes.OK,
-      reason: 'Join allowed',
+      reason: "Join allowed",
     };
   }
 
@@ -105,7 +105,7 @@ export class Pawtect {
 
         {
           "name": "Reden",
-          "value": `${reason} ${channelId !== undefined ? `in <#${channelId}>` : ''}`,
+          "value": `${reason} ${channelId !== undefined ? `in <#${channelId}>` : ""}`,
           "inline": true
         },
         {

@@ -1,5 +1,5 @@
-import { getEnv } from '@utils/env';
-import { Logging } from '@utils/logging.ts';
+import { getEnv } from "@utils/env";
+import { Logging } from "@utils/logging.ts";
 
 export class Github {
     private owner: string;
@@ -12,7 +12,7 @@ export class Github {
 
     static async getCurrentRelease(): Promise<string | null> {
         const response: Response = await fetch(
-            `https://api.github.com/repos/${<string>getEnv('REPO_OWNER')}/${<string>getEnv('REPO_NAME')}/releases/latest`
+            `https://api.github.com/repos/${<string>getEnv("REPO_OWNER")}/${<string>getEnv("REPO_NAME")}/releases/latest`
         );
 
         if (!response.ok) {
@@ -26,11 +26,11 @@ export class Github {
     }
 
     static async getLatestCommit(): Promise<{ sha: string; url: string } | null> {
-        const owner = <string>getEnv('REPO_OWNER');
-        const repo = <string>getEnv('REPO_NAME');
+        const owner = <string>getEnv("REPO_OWNER");
+        const repo = <string>getEnv("REPO_NAME");
 
         const response: Response = await fetch(
-          `https://api.github.com/repos/${<string>getEnv('REPO_OWNER')}/${<string>getEnv('REPO_NAME')}/commits`
+          `https://api.github.com/repos/${<string>getEnv("REPO_OWNER")}/${<string>getEnv("REPO_NAME")}/commits`
         );
 
         if (!response.ok) {
@@ -40,7 +40,7 @@ export class Github {
 
         const commitData = await response.json();
         if (!commitData || !Array.isArray(commitData) || commitData.length === 0) {
-            Logging.error('No commits found');
+            Logging.error("No commits found");
             return null;
         }
 

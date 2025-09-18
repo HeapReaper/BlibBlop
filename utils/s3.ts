@@ -1,6 +1,6 @@
-import * as Minio from 'minio';
-import { getEnv } from '@utils/env';
-import { Logging } from '@utils/logging';
+import * as Minio from "minio";
+import { getEnv } from "@utils/env";
+import { Logging } from "@utils/logging";
 
 export default class S3OperationBuilder {
     private static minioClient: any;
@@ -10,10 +10,10 @@ export default class S3OperationBuilder {
         if (S3OperationBuilder.minioClient) return;
 
         try {
-            const endpoint: string = (getEnv('S3_ENDPOINT') as string)?.replace(/^https?:\/\//, '');
-            const port: number = getEnv('S3_PORT') as unknown as number || 443;
-            const accessKey: string = getEnv('S3_ACCESS_KEY') as string;
-            const secretKey: string = getEnv('S3_SECRET_KEY') as string;
+            const endpoint: string = (getEnv("S3_ENDPOINT") as string)?.replace(/^https?:\/\//, "");
+            const port: number = getEnv("S3_PORT") as unknown as number || 443;
+            const accessKey: string = getEnv("S3_ACCESS_KEY") as string;
+            const secretKey: string = getEnv("S3_SECRET_KEY") as string;
 
             S3OperationBuilder.minioClient = new Minio.Client({
                 endPoint: endpoint,
@@ -23,7 +23,7 @@ export default class S3OperationBuilder {
                 secretKey,
             });
 
-            Logging.debug('MinIO client initialized successfully');
+            Logging.debug("MinIO client initialized successfully");
         } catch (error) {
             Logging.warn(`Failed to initialize MinIO client: ${error}`);
             S3OperationBuilder.minioClient = null;
@@ -43,7 +43,7 @@ export default class S3OperationBuilder {
         try {
             await S3OperationBuilder.minioClient.fPutObject(this.bucketName, objectName, filePath);
 
-            Logging.debug('S3 upload successful!');
+            Logging.debug("S3 upload successful!");
             return {success: true};
         } catch (error) {
             Logging.warn(`S3 upload failed: ${error}`);
@@ -54,7 +54,7 @@ export default class S3OperationBuilder {
     async uploadFileFromBuffer(objectName: string, buffer: Buffer, metaData?: Minio.ItemBucketMetadata): Promise<any> {
         try {
             await S3OperationBuilder.minioClient.putObject(this.bucketName, objectName, buffer, buffer.length, metaData);
-            Logging.debug('S3 upload (buffer) successful!');
+            Logging.debug("S3 upload (buffer) successful!");
             return {success: true};
         } catch (error) {
             Logging.warn(`S3 upload (buffer) failed: ${error}`);
@@ -66,7 +66,7 @@ export default class S3OperationBuilder {
         try {
             const object = await S3OperationBuilder.minioClient.presignedGetObject(this.bucketName, objectName);
 
-            Logging.debug('S3 getObject successful!');
+            Logging.debug("S3 getObject successful!");
             return {success: object};
         } catch (error) {
             Logging.warn(`S3 getObject failed: ${error}`);
@@ -78,7 +78,7 @@ export default class S3OperationBuilder {
         try {
             const object = await S3OperationBuilder.minioClient.removeObject(this.bucketName, objectName);
 
-            Logging.debug('S3 delete successful!');
+            Logging.debug("S3 delete successful!");
             return {success: object};
         } catch (error) {
             Logging.warn(`S3 delete failed: ${error}`);
@@ -93,14 +93,14 @@ export default class S3OperationBuilder {
 
 
             return new Promise((resolve, reject) => {
-                stream.on('data', (obj: Minio.BucketItem) => {
+                stream.on("data", (obj: Minio.BucketItem) => {
                     data.push(obj);
                 });
-                stream.on('end', () => {
+                stream.on("end", () => {
                     Logging.debug(`S3 lists successful! Found ${data.length} objects.`);
                     resolve({success: true, data});
                 });
-                stream.on('error', (error: any) => {
+                stream.on("error", (error: any) => {
                     Logging.warn(`S3 lists failed: ${error}`);
                     reject({success: false, error});
                 });

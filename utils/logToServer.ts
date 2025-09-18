@@ -16,11 +16,11 @@ export class LogToServer {
     thumbnail?: string | Attachment;
     files?: (string | Attachment)[];
   }) {
-    if (!this.logChannel) throw new Error('LogToServer not initialized. Call LogToServer.init() first.');
+    if (!this.logChannel) throw new Error("LogToServer not initialized. Call LogToServer.init() first.");
 
     const embed = new EmbedBuilder()
       .setTitle(options.title)
-      .setColor(options.color ?? 'Blurple')
+      .setColor(options.color ?? "Blurple")
       // @ts-ignore
       .setThumbnail(options.thumbnail ?? this.defaultThumbnail ?? undefined);
 
@@ -30,14 +30,14 @@ export class LogToServer {
   }
 
   static async info(title: string, fields?: { name: string; value: string; inline?: boolean }[], thumbnail?: string | Attachment) {
-    await this.sendLog({ title, color: 'Green', fields, thumbnail });
+    await this.sendLog({ title, color: "Green", fields, thumbnail });
   }
 
   static async warning(title: string, fields?: { name: string; value: string; inline?: boolean }[], thumbnail?: string | Attachment) {
-    await this.sendLog({ title, color: 'Orange', fields, thumbnail });
+    await this.sendLog({ title, color: "Orange", fields, thumbnail });
   }
 
   static async error(title: string, fields?: { name: string; value: string; inline?: boolean }[], thumbnail?: string | Attachment) {
-    await this.sendLog({ title, color: 'Red', fields, thumbnail });
+    await this.sendLog({ title, color: "Red", fields, thumbnail });
   }
 }

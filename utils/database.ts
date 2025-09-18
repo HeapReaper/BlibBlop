@@ -1,31 +1,31 @@
-import { getEnv } from '@utils/env';
-import mysql, {QueryResult} from 'mysql2';
-import { Connection } from 'mysql2/typings/mysql/lib/Connection';
-import {Logging} from '@utils/logging';
+import { getEnv } from "@utils/env";
+import mysql, {QueryResult} from "mysql2";
+import { Connection } from "mysql2/typings/mysql/lib/Connection";
+import {Logging} from "@utils/logging";
 
 class QueryBuilder {
     static connection: Connection;
     private _tableName: string | undefined;
-    private _columnsArray: string[] = ['*'];
+    private _columnsArray: string[] = ["*"];
     private _whereClause: {} = {};
     private _orderByColumnName: string | null = null;
-    private _orderByDirection: 'ASC' | 'DESC' = 'DESC';
+    private _orderByDirection: "ASC" | "DESC" = "DESC";
     private _limitNumber: number | null = null;
-    private _currentMode: string = '';
+    private _currentMode: string = "";
     private _firstMode: Boolean = false;
     private _updateValues: Record<string, any> = {};
     private _insertValues: Record<string, any> = {};
     private _countBoolean: Boolean = false;
     private _loggingEnabled: boolean = false;
-    private _rawQuery: string = '';
+    private _rawQuery: string = "";
     private _offset!: number ;
 
     static init() {
         QueryBuilder.connection = mysql.createConnection({
-            host: <string>getEnv('DATABASE_HOST'),
-            user: <string>getEnv('DATABASE_USER'),
-            password: <string>getEnv('DATABASE_PASSWORD'),
-            database: <string>getEnv('DATABASE_NAME'),
+            host: <string>getEnv("DATABASE_HOST"),
+            user: <string>getEnv("DATABASE_USER"),
+            password: <string>getEnv("DATABASE_PASSWORD"),
+            database: <string>getEnv("DATABASE_NAME"),
         });
     }
 
@@ -42,34 +42,34 @@ class QueryBuilder {
     static select(tableName: string): QueryBuilder {
         const builder = new QueryBuilder();
         builder._tableName = tableName;
-        builder._currentMode = 'select';
+        builder._currentMode = "select";
         return builder;
     }
 
     static update(tableName: string) {
         const builder = new QueryBuilder();
         builder._tableName = tableName;
-        builder._currentMode = 'update';
+        builder._currentMode = "update";
         return builder;
     }
 
     static delete(tableName: string) {
         const builder = new QueryBuilder();
         builder._tableName = tableName;
-        builder._currentMode = 'delete';
+        builder._currentMode = "delete";
         return builder;
     }
 
     static insert(tableName: string) {
         const builder = new QueryBuilder();
         builder._tableName = tableName;
-        builder._currentMode = 'insert';
+        builder._currentMode = "insert";
         return builder;
     }
 
     static raw(query: string): QueryBuilder {
         const builder = new QueryBuilder();
-        builder._tableName = 'raw';
+        builder._tableName = "raw";
         builder._rawQuery = query;
         return builder;
     }
@@ -94,7 +94,7 @@ class QueryBuilder {
         return this;
     }
 
-    orderBy(column: string, direction: 'ASC' | 'DESC' = 'DESC'): QueryBuilder {
+    orderBy(column: string, direction: "ASC" | "DESC" = "DESC"): QueryBuilder {
         this._orderByColumnName = column;
         this._orderByDirection = direction;
         return this;
@@ -123,33 +123,33 @@ class QueryBuilder {
     private async executeSelect(): Promise<any> {
         if (!QueryBuilder.connection) QueryBuilder.connect();
 
-        let countString: string = '';
-        this._countBoolean ? countString = 'COUNT(*) ' : countString = '';
+        let countString: string = "";
+        this._countBoolean ? countString = "COUNT(*) " : countString = "";
 
-        let columnClause = this._columnsArray.join(', ');
+        let columnClause = this._columnsArray.join(", ");
 
-        if (countString && columnClause[0] === '*') {
-            columnClause = '';
+        if (countString && columnClause[0] === "*") {
+            columnClause = "";
         }
 
-        let whereString: string = '';
+        let whereString: string = "";
         const whereValues: any[] = []
         if (Object.keys(this._whereClause).length > 0) {
-            whereString = ' WHERE ' + Object.entries(this._whereClause)
+            whereString = " WHERE " + Object.entries(this._whereClause)
               .map(([key, value]) => {
                   whereValues.push(value);
                   return `${key} = ?`;
               })
-              .join(' AND ');
+              .join(" AND ");
         }
 
-        let orderByString: string = '';
+        let orderByString: string = "";
         if (this._orderByColumnName !== null) orderByString = ` ORDER BY ${this._orderByColumnName} ${this._orderByDirection}`;
 
-        let limitString: string = '';
-        this._limitNumber !== null ? limitString = ` LIMIT ${this._limitNumber}` : limitString = '';
+        let limitString: string = "";
+        this._limitNumber !== null ? limitString = ` LIMIT ${this._limitNumber}` : limitString = "";
 
-        let offsetString: string = '';
+        let offsetString: string = "";
         if (this._offset !== undefined) offsetString = ` OFFSET ${this._offset}`;
 
         const sql = `SELECT ${countString}${columnClause} FROM ${this._tableName}${whereString}${orderByString}${limitString}${offsetString}`;
@@ -166,7 +166,7 @@ class QueryBuilder {
 
                 if (this._firstMode) return resolve(res[0]);
 
-                if (this._countBoolean) return resolve(res[0]['COUNT(*)']);
+                if (this._countBoolean) return resolve(res[0]["COUNT(*)"]);
 
                 return resolve(res);
             })
@@ -176,20 +176,20 @@ class QueryBuilder {
     private async executeUpdate(): Promise<any> {
         if (!QueryBuilder.connection) QueryBuilder.connect();
 
-        let updateString = ' SET ' + Object.entries(this._updateValues)
+        let updateString = " SET " + Object.entries(this._updateValues)
           .map(([key, value]) => `${key} = ?`)
-          .join(', ');
+          .join(", ");
 
-        let whereString = '';
+        let whereString = "";
         const whereValues: any[] = Object.values(this._updateValues);
 
         if (Object.keys(this._whereClause).length > 0) {
-            whereString = ' WHERE ' + Object.entries(this._whereClause)
+            whereString = " WHERE " + Object.entries(this._whereClause)
               .map(([key, value]) => {
                   whereValues.push(value);
                   return `${key} = ?`;
               })
-              .join(' AND ');
+              .join(" AND ");
         }
 
 
@@ -213,15 +213,15 @@ class QueryBuilder {
     private async executeDelete(): Promise<any> {
         if (!QueryBuilder.connection) QueryBuilder.connect();
 
-        let whereString: string = '';
+        let whereString: string = "";
         const whereValues: any[] = []
         if (Object.keys(this._whereClause).length > 0) {
-            whereString = ' WHERE ' + Object.entries(this._whereClause)
+            whereString = " WHERE " + Object.entries(this._whereClause)
               .map(([key, value]) => {
                   whereValues.push(value);
                   return `${key} = ?`;
               })
-              .join(' AND ');
+              .join(" AND ");
         }
 
         const sql = `DELETE FROM ${this._tableName}${whereString}`;
@@ -244,8 +244,8 @@ class QueryBuilder {
     private async executeInsert(): Promise<any> {
         if (!QueryBuilder.connection) QueryBuilder.connect();
 
-        const columns = Object.keys(this._insertValues).join(', ');
-        const placeholders = Object.values(this._insertValues).map(() => '?').join(', ');
+        const columns = Object.keys(this._insertValues).join(", ");
+        const placeholders = Object.values(this._insertValues).map(() => "?").join(", ");
         const values = Object.values(this._insertValues);
 
         const sql = `INSERT INTO ${this._tableName} (${columns}) VALUES (${placeholders})`;
@@ -300,7 +300,7 @@ class QueryBuilder {
             const start = Date.now();
 
             const result = await new Promise((resolve, reject) => {
-                QueryBuilder.connection.query('SELECT 1', (err, res) => {
+                QueryBuilder.connection.query("SELECT 1", (err, res) => {
                     if (err) return reject(err);
                     resolve(res);
                 });
@@ -326,13 +326,13 @@ class QueryBuilder {
     // @ts-ignore
     async execute(): Promise<any[]> {
         switch (this._currentMode) {
-            case 'select':
+            case "select":
                 return await this.executeSelect();
-            case 'update':
+            case "update":
                 return await this.executeUpdate();
-            case 'delete':
+            case "delete":
                 return await this.executeDelete();
-            case 'insert':
+            case "insert":
                 return await this.executeInsert();
             default:
                 return await this.executeRaw();
@@ -340,8 +340,8 @@ class QueryBuilder {
     }
 }
 
-// await QueryBuilder.insert('leveling').values({ user_id: '12345', xp: 0, level: 1 }).execute();
-// await QueryBuilder.update('leveling').set({ xp: 100 }).where({ id: 1 }).execute();
-// await QueryBuilder.delete('leveling').where({ id: 1 }).execute();
+// await QueryBuilder.insert("leveling").values({ user_id: "12345", xp: 0, level: 1 }).execute();
+// await QueryBuilder.update("leveling").set({ xp: 100 }).where({ id: 1 }).execute();
+// await QueryBuilder.delete("leveling").where({ id: 1 }).execute();
 
 export default QueryBuilder;
