@@ -3,6 +3,7 @@ import {
 	GatewayIntentBits,
 	Partials,
 	Events as DiscordEvents, TextChannel,
+	ActivityType,
 } from 'discord.js';
 import loadModules from '@utils/moduleLoader';
 import { Logging } from '@utils/logging';
@@ -39,6 +40,9 @@ client.on(DiscordEvents.ClientReady, async client => {
 	const logChannel = await guild.channels.fetch(getEnv('LOG') as string) as TextChannel;
 
 	LogToServer.init(logChannel);
+
+	// Set activity
+	client.user.setActivity("/ticket om beheer te contacteren", { type: ActivityType.Listening});
 
 	// Load modules
 	try {
