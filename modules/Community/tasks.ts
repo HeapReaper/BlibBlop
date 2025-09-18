@@ -1,9 +1,9 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client } from "discord.js";
 
 export default class Tasks {
-	private client: Client;
+	private readonly client: Client;
 
-    constructor(client: Client) {
+	constructor(client: Client) {
 		this.client = client;
 	}
 }
