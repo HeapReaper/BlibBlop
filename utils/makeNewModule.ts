@@ -3,21 +3,21 @@ import * as process from "node:process";
 
 export async function makeNewModule(name: string) {
 
-    const modulesDir = `./modules`;
-    const moduleNameToCreate = name;
+  const modulesDir = `./modules`;
+  const moduleNameToCreate = name;
 
-    console.log(`Making module named ${moduleNameToCreate} inside ${modulesDir}/`);
+  console.log(`Making module named ${moduleNameToCreate} inside ${modulesDir}/`);
 
-    if (existsSync(`${modulesDir}/${moduleNameToCreate}`)) {
-        console.error(`Module named ${moduleNameToCreate} already exists!`);
-        process.exit();
-    }
+  if (existsSync(`${modulesDir}/${moduleNameToCreate}`)) {
+    console.error(`Module named ${moduleNameToCreate} already exists!`);
+    process.exit();
+  }
 
-    // Making modules folder
-    mkdirSync(`${modulesDir}/${moduleNameToCreate}`);
+  // Making modules folder
+  mkdirSync(`${modulesDir}/${moduleNameToCreate}`);
 
-    const commandsFileWrite =
-      `import { SlashCommandBuilder } from "discord.js";
+  const commandsFileWrite =
+    `import { SlashCommandBuilder } from "discord.js";
 
 export const commands = [
 
@@ -26,11 +26,9 @@ export const commands = [
 
     const commandsListenerFileWrite =
       `import { Client, Interaction, Events, MessageFlags} from "discord.js";
-import Database from "@utils/database";
-import { Logging } from "@utils/logging";
 
 export default class CommandsListener {
-	private client: Client;
+	private readonly client: Client;
 
 	constructor(client: Client) {
 		this.client = client;
@@ -47,11 +45,11 @@ export default class CommandsListener {
       `import { Client, TextChannel } from "discord.js";
 
 export default class Events {
-    private client: Client;
-
-    constructor(client: Client) {
-        this.client = client;
-    }
+  private readonly client: Client;
+  
+  constructor(client: Client) {
+    this.client = client;
+  }
 }
 `;
 
@@ -59,19 +57,19 @@ export default class Events {
       `import { Client, TextChannel } from "discord.js";
 
 export default class Tasks {
-	private client: Client;
+	private readonly client: Client;
 
-    constructor(client: Client) {
+  constructor(client: Client) {
 		this.client = client;
 	}
 }
 `;
 
-    // Making and writing module files
-    writeFileSync(`${modulesDir}/${moduleNameToCreate}/commands.ts`, commandsFileWrite);
-    writeFileSync(`${modulesDir}/${moduleNameToCreate}/commandsListener.ts`, commandsListenerFileWrite);
-    writeFileSync(`${modulesDir}/${moduleNameToCreate}/events.ts`, eventsFileWrite);
-    writeFileSync(`${modulesDir}/${moduleNameToCreate}/tasks.ts`, tasksFileWrite);
+  // Making and writing module files
+  writeFileSync(`${modulesDir}/${moduleNameToCreate}/commands.ts`, commandsFileWrite);
+  writeFileSync(`${modulesDir}/${moduleNameToCreate}/commandsListener.ts`, commandsListenerFileWrite);
+  writeFileSync(`${modulesDir}/${moduleNameToCreate}/events.ts`, eventsFileWrite);
+  writeFileSync(`${modulesDir}/${moduleNameToCreate}/tasks.ts`, tasksFileWrite);
 
-    console.log("I created the module!");
+  console.log("I created the module!");
 }
