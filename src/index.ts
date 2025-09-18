@@ -4,17 +4,15 @@ import {
 	Partials,
 	Events as DiscordEvents, TextChannel,
 	ActivityType,
-} from 'discord.js';
-import loadModules from '@utils/moduleLoader';
-import { Logging } from '@utils/logging';
-import { getEnv } from '@utils/env';
-import { runMigrations } from '@utils/migrations.ts';
-import QueryBuilder from '@utils/database.ts';
-import * as process from 'node:process';
-import cron from 'node-cron';
-import { usersOnline } from '@utils/usersOnline';
-import { createWebServer } from '@utils/webServer';
-import { LogToServer } from '@utils/logToServer.ts';
+} from "discord.js";
+import loadModules from "@utils/moduleLoader";
+import { Logging } from "@utils/logging";
+import { getEnv } from "@utils/env";
+import { runMigrations } from "@utils/migrations.ts";
+import QueryBuilder from "@utils/database.ts";
+import * as process from "node:process";
+import { createWebServer } from "@utils/webServer";
+import { LogToServer } from "@utils/logToServer.ts";
 
 const client = new Client({
 	intents: [
@@ -36,8 +34,8 @@ const client = new Client({
 });
 
 client.on(DiscordEvents.ClientReady, async client => {
-	const guild = await client.guilds.fetch(getEnv('GUILD_ID') as string);
-	const logChannel = await guild.channels.fetch(getEnv('LOG') as string) as TextChannel;
+	const guild = await client.guilds.fetch(getEnv("GUILD_ID") as string);
+	const logChannel = await guild.channels.fetch(getEnv("LOG") as string) as TextChannel;
 
 	LogToServer.init(logChannel);
 
@@ -60,15 +58,15 @@ client.on(DiscordEvents.ClientReady, async client => {
 
 	// Keeping DB active
 	setInterval(async () => {
-		Logging.debug('Keeping the database connection active...');
-		await QueryBuilder.select('migrations').limit(1).execute();
+		Logging.debug("Keeping the database connection active...");
+		await QueryBuilder.select("migrations").limit(1).execute();
 	}, 10000);
 
 	// Error handling
-	process.on('uncaughtException', error =>
+	process.on("uncaughtException", error =>
 		Logging.error(`Uncaught Exception: ${error.stack ?? error}`)
 	);
-	process.on('unhandledRejection', reason =>
+	process.on("unhandledRejection", reason =>
 		Logging.error(`Unhandled Rejection: ${reason instanceof Error ? reason.stack : reason}`)
 	);
 
@@ -78,4 +76,4 @@ client.on(DiscordEvents.ClientReady, async client => {
 	Logging.info(`Client ready! Signed in as ${client.user.tag}!`);
 });
 
-void client.login(getEnv('DISCORD_TOKEN'));
+void client.login(getEnv("DISCORD_TOKEN"));
