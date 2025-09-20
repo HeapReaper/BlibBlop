@@ -1,4 +1,9 @@
-import { TextChannel, EmbedBuilder, ColorResolvable, Attachment } from "discord.js";
+import {
+  TextChannel,
+  EmbedBuilder,
+  ColorResolvable,
+  Attachment
+} from "discord.js";
 
 export class LogToServer {
   private static logChannel: TextChannel;
