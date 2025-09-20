@@ -45,7 +45,7 @@ export default class Events {
   }
 
   async massMessageBlocker() {
-    const withInSeconds = 4;
+    const withInSeconds = 5;
     const minimalChannelsSize = 3;
 
     this.client.on(DiscordEvents.MessageCreate, async (message) => {
