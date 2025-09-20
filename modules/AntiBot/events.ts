@@ -29,11 +29,11 @@ export default class Events {
     this.client.on(DiscordEvents.MessageCreate, async (message) => {
       if (isBot(message.author, this.client)) return;
 
+      if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) return;
+
       const inviteRegex = /(discord\.gg\/|discord\.com\/invite\/|discordapp\.com\/invite\/)/i;
 
       if (!inviteRegex.test(message.content)) return;
-
-      if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) return;
 
       await message.delete();
 
@@ -50,6 +50,8 @@ export default class Events {
 
     this.client.on(DiscordEvents.MessageCreate, async (message) => {
       if (isBot(message.author, this.client)) return;
+
+      if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) return;
 
       const member = message.member;
       if (!member) return;
@@ -87,6 +89,8 @@ export default class Events {
   async spamWordBlocker() {
     this.client.on(DiscordEvents.MessageCreate, async (message) => {
       if (isBot(message.author, this.client)) return;
+
+      if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) return;
 
       const spamWords = [
         "free credits",
