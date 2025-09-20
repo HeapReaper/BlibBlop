@@ -6,37 +6,81 @@ import {
 } from "discord.js";
 import { isBot } from "@utils/isBot";
 import { getEnv } from "@utils/env";
-import {Color} from "@enums/ColorEnum.ts";
+import { Color } from "@enums/ColorEnum";
+
+type UserMessageRecord = {
+  timestamps: number[];
+  channels: Set<string>;
+};
 
 export default class Events {
   private readonly client: Client;
+  private userMessageMap: Map<string, UserMessageRecord> = new Map();
 
   constructor(client: Client) {
     this.client = client;
-    void this.InviteBlocker();
+
+    void this.inviteBlocker();
+    void this.massMessageBlocker();
+
   }
 
-  async InviteBlocker() {
+  async inviteBlocker() {
     this.client.on(DiscordEvents.MessageCreate, async (message) => {
       if (isBot(message.author, this.client)) return;
 
       const inviteRegex = /(discord\.gg\/|discord\.com\/invite\/|discordapp\.com\/invite\/)/i;
 
-      // If message content doesnt have invite link, do nothing
       if (!inviteRegex.test(message.content)) return;
 
-      // If member can manage permissions, do nothing
-      if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) return
+      if (message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) return;
 
-      // Delete message
       await message.delete();
 
-      // Send notification of blocked invite link
       await this.sendNotification(
         "Bericht automatisch verwijderd",
-        `Ik heb een Discord invite link automatisch verwijderd van ${message.author.displayName}`
+        `Ik heb een Discord invite link automatisch verwijderd van ${message.author.username}`
       );
+    });
+  }
 
+  async massMessageBlocker() {
+    const withInSeconds = 4;
+    const minimalChannelsSize = 3;
+
+    this.client.on(DiscordEvents.MessageCreate, async (message) => {
+      if (isBot(message.author, this.client)) return;
+
+      const member = message.member;
+      if (!member) return;
+
+      const now = Date.now();
+      const userId = member.id;
+      const record = this.userMessageMap.get(userId) || { timestamps: [], channels: new Set() };
+
+      record.timestamps = record.timestamps.filter(t => now - t <= withInSeconds * 1000);
+
+      record.timestamps.push(now);
+      record.channels.add(message.channel.id);
+
+      this.userMessageMap.set(userId, record);
+
+      if (record.channels.size >= minimalChannelsSize) {
+        try {
+          if (member.moderatable) {
+            await member.timeout(24 * 60 * 60 * 1000, "Cross-channel spam detected");
+          }
+
+          await this.sendNotification(
+            "Gebruiker getimeout",
+            `${member.user.displayName} heeft berichten in ${minimalChannelsSize} of meer kanalen binnen ${withInSeconds} seconden gestuurd en is getimeout voor 24 uur.`
+          );
+        } catch (err) {
+          console.error("Failed to timeout user:", err);
+        }
+
+        this.userMessageMap.delete(userId);
+      }
     });
   }
 
