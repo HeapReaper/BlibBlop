@@ -22,7 +22,7 @@ export default class Events {
 
     void this.inviteBlocker();
     void this.massMessageBlocker();
-
+    void this.spamWordBlocker();
   }
 
   async inviteBlocker() {
@@ -84,6 +84,30 @@ export default class Events {
     });
   }
 
+  async spamWordBlocker() {
+    this.client.on(DiscordEvents.MessageCreate, async (message) => {
+      if (isBot(message.author, this.client)) return;
+
+      const spamWords = [
+        "free credits",
+        "claim now",
+        "free nitro",
+        "discord gift"
+      ];
+
+      const msgContent = message.content.toLowerCase();
+      const isSpam = spamWords.some(word => msgContent.includes(word));
+
+      if (!isSpam) return;
+
+      message.delete().catch(err => console.error("Kon bericht niet verwijderen:", err));
+
+      await this.sendNotification(
+        "Bericht automatisch verwijderd",
+        `Ik heb een bericht verwijderd vam ${message.author.displayName} waar veelvoorkomende SPAM woorden in zaten.`
+      )
+    })
+  }
   async sendNotification(title: string, content: string) {
     const channel = await this.client.channels.fetch(getEnv("GENERAL") as string) as TextChannel;
 
