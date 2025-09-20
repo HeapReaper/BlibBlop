@@ -104,7 +104,7 @@ export default class Events {
 
       await this.sendNotification(
         "Bericht automatisch verwijderd",
-        `Ik heb een bericht verwijderd vam ${message.author.displayName} waar veelvoorkomende SPAM woorden in zaten.`
+        `Ik heb een bericht verwijderd van ${message.author.displayName} waar veelvoorkomende SPAM woorden in zaten.`
       )
     })
   }
