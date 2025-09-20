@@ -7,6 +7,7 @@ import {
 import { isBot } from "@utils/isBot";
 import { getEnv } from "@utils/env";
 import { Color } from "@enums/ColorEnum";
+import { LogToServer } from "@utils/logToServer";
 
 type UserMessageRecord = {
   timestamps: number[];
@@ -40,6 +41,14 @@ export default class Events {
       await this.sendNotification(
         "Bericht automatisch verwijderd",
         `Ik heb een Discord invite link automatisch verwijderd van ${message.author.username}`
+      );
+
+      await LogToServer.warning(
+        "Bericht automatisch verwijderd",
+        [
+          { name: "Van", value: `<@${message.author.id}>` },
+          { name: "Reden", value: "Invite link geplaatst"}
+        ]
       );
     });
   }
@@ -77,6 +86,14 @@ export default class Events {
             "Gebruiker getimeout",
             `${member.user.displayName} heeft berichten in ${minimalChannelsSize} of meer kanalen binnen ${withInSeconds} seconden gestuurd en is getimeout voor 24 uur.`
           );
+
+          await LogToServer.warning(
+            "Gebruiker getimeout",
+            [
+              { name: "Wie", value: `<@${member.user.id}>` },
+              { name: "Reden", value: "Bericht SPAM"}
+            ]
+          );
         } catch (err) {
           console.error("Failed to timeout user:", err);
         }
@@ -109,7 +126,15 @@ export default class Events {
       await this.sendNotification(
         "Bericht automatisch verwijderd",
         `Ik heb een bericht verwijderd van ${message.author.displayName} waar veelvoorkomende SPAM woorden in zaten.`
-      )
+      );
+
+      await LogToServer.warning(
+        "Bericht automatisch verwijderd",
+        [
+          { name: "Wie", value: `<@${message.author.id}>` },
+          { name: "Reden", value: "Bevat veelvoorkomende SPAM woorden"}
+        ]
+      );
     })
   }
   async sendNotification(title: string, content: string) {
