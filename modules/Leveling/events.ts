@@ -65,13 +65,13 @@ export default class Events {
 
       try {
         const roleToAdd = this.levelRoleIds[addIndex];
-        if (roleToAdd) {
+        if (roleToAdd && getEnv("ENVIRONMENT") as string === "production") {
           await message.member?.roles.add(roleToAdd);
           Logging.info(`Added role ${roleToAdd} for level ${newLevel}`);
         }
 
         const roleToRemove = this.levelRoleIds[removeIndex];
-        if (removeIndex >= 0 && roleToRemove) {
+        if (removeIndex >= 0 && roleToRemove && getEnv("ENVIRONMENT") as string === "production") {
           await message.member?.roles.remove(roleToRemove);
           Logging.info(`🗑Removed role ${roleToRemove} for old level ${levelingFromDB.level}`);
         }
