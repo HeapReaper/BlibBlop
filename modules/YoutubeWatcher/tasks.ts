@@ -4,6 +4,7 @@ import { XMLParser } from "fast-xml-parser";
 import { formatIsoDate } from "@utils/formatDate";
 import { getEnv } from "@utils/env";
 import { Color } from "@enums/ColorEnum";
+import {Logging} from "@utils/logging.ts";
 
 type Videos = Record<string, string>;
 
@@ -32,12 +33,10 @@ export default class Tasks {
 	}
 
 	async task() {
-		console.log("Running task");
-
 		const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "" });
 
 		for (const channel of this.youtubeChannels) {
-			console.log("Looping through channels");
+			Logging.trace("Looping through channels in YoutubeWatcher");
 
 			const url = `${this.baseUrl}${channel}`;
 			const res = await fetch(url);
@@ -90,8 +89,8 @@ export default class Tasks {
 			if (match && match[1]) {
 				return match[1];
 			}
-		} catch (err) {
-			console.error("Error fetching channel image:", err);
+		} catch (error) {
+			Logging.error(`Error fetching channel image: ${error}`);
 			return null;
 		}
 	}
