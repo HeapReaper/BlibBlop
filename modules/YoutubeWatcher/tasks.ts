@@ -25,6 +25,7 @@ export default class Tasks {
 			"UC9zTuyWffK9ckEz1216noAw", // FliteTest
 			"UCPCw5ycqW0fme1BdvNqOxbw", // Project Air
 			"UC7yF9tV4xWEMZkel7q8La_w", // Peter Sripol
+			"UCX3eufnI7A2I7IkKHZn8KSQ", // Joshua Bardwell
 		];
 
 		void this.task();
