@@ -21,6 +21,7 @@ export default class Tasks {
 			"UCH2_Jj8m4Zbe26UMlGG_LVA", // Kevin Talbot
 			"UC4Q7GgIQ4kFXnZ3XIBFgUig", // Traxxas
 			"UC023gC8PR8vi2ZaREU0i0XQ", // ArrmaRC
+			"UCSgcnNUXj1466tP-bm2ZdGA", // Tomley RC
 			"UC9zTuyWffK9ckEz1216noAw", // FliteTest
 			"UCPCw5ycqW0fme1BdvNqOxbw", // Project Air
 			"UC7yF9tV4xWEMZkel7q8La_w", // Peter Sripol
