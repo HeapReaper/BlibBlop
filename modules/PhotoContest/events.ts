@@ -10,7 +10,7 @@ import { isBot } from "@utils/isBot";
 import QueryBuilder from "@utils/database";
 import { externalLogToServer } from "../ServerLogger/events";
 import { Color } from "@enums/ColorEnum";
-import {LogToServer} from "@utils/logToServer.ts";
+import { LogToServer } from "@utils/logToServer";
 
 export default class Events {
   private readonly client: Client;

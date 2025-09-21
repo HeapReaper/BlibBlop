@@ -1,9 +1,12 @@
-import { Client, TextChannel } from 'discord.js';
+import {
+  Client,
+  TextChannel
+} from "discord.js";
 
 export default class Events {
-    private client: Client;
+  private readonly client: Client;
 
-    constructor(client: Client) {
-        this.client = client;
-    }
+  constructor(client: Client) {
+    this.client = client;
+  }
 }

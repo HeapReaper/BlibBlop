@@ -1,9 +1,9 @@
-import { Client, Interaction, Events, MessageFlags} from 'discord.js';
-import Database from '@utils/database';
-import { Logging } from '@utils/logging';
+import {
+	Client
+} from "discord.js";
 
 export default class CommandsListener {
-	private client: Client;
+	private readonly client: Client;
 
 	constructor(client: Client) {
 		this.client = client;

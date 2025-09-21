@@ -2,29 +2,29 @@ import {
 	Client,
 	EmbedBuilder,
 	TextChannel
-} from 'discord.js';
-import cron from 'node-cron';
-import { getEnv } from '@utils/env';
-import { Logging } from '@utils/logging';
+} from "discord.js";
+import cron from "node-cron";
+import { getEnv } from "@utils/env";
+import { Logging } from "@utils/logging";
 
 export default class Tasks {
-	private client: Client;
+	private readonly client: Client;
 	private lastArticleId = null;
 
 	constructor(client: Client) {
 		this.client = client;
 		void this.task()
 
-		cron.schedule('* * * * *', async () => {
+		cron.schedule("* * * * *", async () => {
 			await this.task();
 		})
 	}
 
 	async task() {
-		Logging.info('Checking if a new article has been posted on the site...');
+		Logging.info("Checking if a new article has been posted on the site...");
 
 		try {
-			const response = await fetch('https://strapi.rc-garage.nl/api/articles?populate=*&sort=createdAt:desc&pagination[limit]=1');
+			const response = await fetch("https://strapi.rc-garage.nl/api/articles?populate=*&sort=createdAt:desc&pagination[limit]=1");
 			const json = await response.json();
 			const article = json.data[0];
 
@@ -41,7 +41,7 @@ export default class Tasks {
 
 			this.lastArticleId = articleId;
 
-			const newsChannel = await this.client.channels.fetch(getEnv('NEWS') as string) as TextChannel;
+			const newsChannel = await this.client.channels.fetch(getEnv("NEWS") as string) as TextChannel;
 
 			if (!newsChannel) return;
 
