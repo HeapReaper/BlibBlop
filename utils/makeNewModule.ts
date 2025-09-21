@@ -42,7 +42,10 @@ export default class CommandsListener {
 `;
 
     const eventsFileWrite =
-      `import { Client, TextChannel } from "discord.js";
+      `import {
+  Client, 
+  Events as DiscordEvents,
+} from "discord.js";
 
 export default class Events {
   private readonly client: Client;
