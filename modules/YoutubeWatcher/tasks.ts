@@ -4,7 +4,7 @@ import { XMLParser } from "fast-xml-parser";
 import { formatIsoDate } from "@utils/formatDate";
 import { getEnv } from "@utils/env";
 import { Color } from "@enums/ColorEnum";
-import {Logging} from "@utils/logging.ts";
+import { Logging } from "@utils/logging";
 
 type Videos = Record<string, string>;
 
