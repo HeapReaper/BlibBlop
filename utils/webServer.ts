@@ -124,6 +124,11 @@ export async function createWebServer(client: Client, port = 3144) {
     res.end(await register.metrics());
   });
 
+  webApp.get("/health", async (req: any, res: any) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.status(200).send("OK");
+  });
+
   webApp.listen(port, () => {
     Logging.info(`API running at http://localhost:${port}`);
   });
