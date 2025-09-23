@@ -113,6 +113,53 @@ export default class CommandsListener {
 				flags: [MessageFlags.Ephemeral]
 			});
 		});
+
+		this.client.on(Events.InteractionCreate, async (interaction) => {
+			if (!interaction.isButton()) return;
+
+			const managementChannel = await this.client.channels.fetch(getEnv("BESTUUR") as string) as TextChannel;
+
+			if (interaction.customId.startsWith("claim_giveaway_")) {
+				const parts = interaction.customId.split("_");
+				const giveawayId = parts[2];
+				const winnerId = parts[3];
+
+				// Only real winner can click
+				if (interaction.user.id !== winnerId) {
+					await interaction.reply({
+						content: "❌ Je bent niet de winnaar van deze giveaway!",
+						flags: [MessageFlags.Ephemeral]
+					});
+					return;
+				}
+
+				const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+					// @ts-ignore
+					ButtonBuilder.from(interaction.component as ButtonBuilder).setDisabled(true)
+				);
+
+				await interaction.update({
+					content: `🎉 <@${winnerId}> heeft de prijs geclaimd!`,
+					components: [disabledRow]
+				});
+
+				await QueryBuilder.update("giveaway_participants")
+					.set({
+						winner: 1
+					})
+					.where({
+						giveaway_id: giveawayId,
+						user_id: interaction.user.id
+					})
+					.execute();
+
+				const msg = await interaction.message.fetch();
+
+				await managementChannel.send({
+					content: `Gebruiker <@${winnerId}> heeft de prijs geclaimd! ${msg.url}`
+				});
+			}
+		});
 	}
 
 	async create(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -140,6 +187,15 @@ export default class CommandsListener {
 
 		if (isNaN(date.getTime())) {
 			Logging.error("Ongeldige datum!");
+			return;
+		}
+
+		if (aantal_winnaars === 0 || aantal_winnaars > 1) {
+			await interaction.reply({
+				content: "Maximaal aantal winnaars is 1 en minimaal 1",
+				flags: [MessageFlags.Ephemeral]
+			});
+
 			return;
 		}
 
