@@ -236,14 +236,33 @@ export default class CommandsListener {
 	async list(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!interaction.isCommand()) return;
 
-		await LogToServer.info(
-			"Command gebruikt",
+		await LogToServer.info("Command gebruikt",
 			[
 				{ name: "Command", value: '`/giveaway lijst`'},
 				{ name: "Wie", value: `<@${interaction.user.id}>`}
 			]
 		);
-		//
+
+		const result = await QueryBuilder
+			.select("giveaways")
+			.where({
+				actief: 1
+			})
+			.get();
+
+		const embed: EmbedBuilder = new EmbedBuilder()
+			.setTitle("Giveaways");
+
+		for (const giveaway of result) {
+			embed.addFields(
+				{ name: giveaway.prijs, value: `Eindigt op: ${giveaway.giveaway_at}` }
+			);
+		}
+
+		await interaction.reply({
+			embeds: [embed],
+			flags: [MessageFlags.Ephemeral]
+		});
 	}
 
 	async sendGiveawayEmbed(interaction: ChatInputCommandInteraction, amount_winners: number, price: string, terms: string, tagEveryone: boolean, giveAwayID: string, unixTimestamp: number): Promise<void> {
