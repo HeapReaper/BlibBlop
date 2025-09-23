@@ -3,7 +3,6 @@ import {
 	Events,
 	MessageFlags,
 	ChatInputCommandInteraction,
-	CommandInteraction,
 	ButtonStyle,
 	ButtonBuilder,
 	ActionRowBuilder,
@@ -12,8 +11,8 @@ import {
 } from "discord.js";
 import QueryBuilder from "@utils/database";
 import { Logging } from "@utils/logging";
-import {Color} from "@enums/ColorEnum.ts";
-import {getEnv} from "@utils/env.ts";
+import { Color } from "@enums/ColorEnum";
+import { getEnv } from "@utils/env";
 
 export default class CommandsListener {
 	private readonly client: Client;
@@ -46,6 +45,72 @@ export default class CommandsListener {
 					void this.list(interaction);
 					break;
 			}
+		});
+
+		this.client.on(Events.InteractionCreate, async (interaction) => {
+			if (!interaction.isButton()) return;
+			if (interaction.customId !== "enter_giveaway") return;
+
+			const message = interaction.message;
+			const embed = message.embeds[0];
+
+			if (!embed) return;
+
+			const fields = embed.fields.map(f => ({ ...f }));
+			const deelnemersFieldIndex = fields.findIndex(f => f.name === "Aantal deelnames");
+
+			if (deelnemersFieldIndex === -1) return;
+
+			// Get giveaway ID with the message id
+			const result = await QueryBuilder
+				.select("giveaways")
+				.where({
+					bericht_id: message.id
+				})
+				.first();
+
+			if (!result) return;
+
+			// Check if user already participate, if yes return error
+			const ifExists = await QueryBuilder
+				.select("giveaway_participants")
+				.where({
+					giveaway_id: result.id,
+					user_id: interaction.user.id
+				})
+				.count()
+				.first();
+
+			if (ifExists["COUNT(*)"] > 0) {
+				await interaction.reply({
+					content: 'Je doet al mee aan deze giveaway!',
+					flags: [MessageFlags.Ephemeral]
+				});
+
+				return;
+			}
+
+			// Add user as a participant to the giveaway table
+			await QueryBuilder
+				.insert("giveaway_participants")
+				.values({
+					giveaway_id: result.id,
+					user_id: interaction.user.id
+				})
+				.execute();
+
+			const currentCount = parseInt(fields[deelnemersFieldIndex].value);
+			fields[deelnemersFieldIndex].value = `${currentCount + 1}`;
+
+			const updatedEmbed = EmbedBuilder.from(embed)
+				.setFields(fields);
+
+			await message.edit({ embeds: [updatedEmbed] });
+
+			await interaction.reply({
+				content: "Je doet mee aan de giveaway!",
+				flags: [MessageFlags.Ephemeral]
+			});
 		});
 	}
 
@@ -86,7 +151,6 @@ export default class CommandsListener {
 				flags: [MessageFlags.Ephemeral]
 			})
 
-			// Send giveaway notification
 			// @ts-ignore
 			await this.sendGiveawayEmbed(interaction, aantal_winnaars, prijs, voorwaarden, vermeld_iedereen, result.insertId, unixTimestamp);
 		} catch (error) {
