@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS giveaways (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    dag TINYINT NOT NULL,
-    maand TINYINT NOT NULL,
-    jaar SMALLINT NOT NULL,
-    tijd VARCHAR(5) NOT NULL,
+    giveaway_at DATETIME NOT NULL,
     aantal_winnaars TINYINT NOT NULL,
     prijs VARCHAR(255) NOT NULL,
+    extra_voorwaarden VARCHAR(255) NOT NULL,
+    actief INT(2) NOT NULL DEFAULT 1,
+    bericht_id VARCHAR(22) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

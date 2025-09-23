@@ -2,6 +2,7 @@ import * as process from 'node:process';
 import { makeNewMigration } from '@utils/makeNewMigration';
 import { makeNewModule } from '@utils/makeNewModule';
 import { refreshSlashCommands } from '@utils/refreshSlashCommands';
+import QueryBuilder from "@utils/database";
 
 const [,, command, name] = process.argv;
 

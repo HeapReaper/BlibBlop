@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="blibblop@192.168.1.143" uuid="b4dcc2d1-e13e-4c39-8d3c-bc6269fd55b8">
-      <driver-ref>mariadb</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://192.168.1.143:3306/blibblop</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="database.introspection.mysql.dbe5060" value="true" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="blibblop@192.168.1.143 [2]" uuid="8dc0fd74-1cf3-4d5f-a946-d98e4eda1a6b">
+    <data-source source="LOCAL" name="blibblop@192.168.1.143" uuid="43ac0342-8b37-4914-b3f2-48c7849ee340">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>

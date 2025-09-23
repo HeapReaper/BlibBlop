@@ -48,6 +48,18 @@ export const commands = [
             .setDescription("Wat is de prijs van deze giveaway?")
             .setRequired(true)
         )
+        .addStringOption(option =>
+          option
+            .setName("extra_voorwaarden")
+            .setDescription("Extra voorwaarden voor deelname")
+            .setRequired(true)
+        )
+        .addBooleanOption(option =>
+        option
+          .setName("vermeld_iedereen")
+          .setDescription("Doe een @everyone")
+          .setRequired(true)
+        )
     )
     .addSubcommand(sub =>
       sub
