@@ -13,6 +13,7 @@ import QueryBuilder from "@utils/database";
 import { Logging } from "@utils/logging";
 import { Color } from "@enums/ColorEnum";
 import { getEnv } from "@utils/env";
+import { LogToServer } from "@utils/logToServer";
 
 export default class CommandsListener {
 	private readonly client: Client;
@@ -33,16 +34,16 @@ export default class CommandsListener {
 
 			switch (subCommandName) {
 				case "aanmaken":
-					void this.create(interaction);
+					await this.create(interaction);
 					break;
 				case "verwijder":
-					void this.delete(interaction);
+					await this.delete(interaction);
 					break;
 				case "reroll":
-					void this.reroll(interaction);
+					await this.reroll(interaction);
 					break;
 				case "lijst":
-					void this.list(interaction);
+					await this.list(interaction);
 					break;
 			}
 		});
@@ -117,6 +118,14 @@ export default class CommandsListener {
 	async create(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!interaction.isCommand()) return;
 
+		await LogToServer.info(
+			"Command gebruikt",
+			[
+				{ name: "Command", value: '`/giveaway aanmaken`'},
+				{ name: "Wie", value: `<@${interaction.user.id}>`}
+			]
+		);
+
 		const dag: number = interaction.options.getInteger("dag", true);
 		const maand: number = interaction.options.getInteger("maand", true);
 		const jaar: number = interaction.options.getInteger("jaar", true);
@@ -162,6 +171,15 @@ export default class CommandsListener {
 
 	async delete(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!interaction.isCommand()) return;
+
+		await LogToServer.info(
+			"Command gebruikt",
+			[
+				{ name: "Command", value: '`/giveaway verwijder`'},
+				{ name: "Wie", value: `<@${interaction.user.id}>`}
+			]
+		);
+
 		const channel = await this.client.channels.fetch(getEnv("GIVEAWAY") as string) as TextChannel;
 		const id: string = interaction.options.getString("id", true);
 
@@ -204,12 +222,27 @@ export default class CommandsListener {
 	async reroll(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!interaction.isCommand()) return;
 
+		await LogToServer.info(
+			"Command gebruikt",
+			[
+				{ name: "Command", value: '`/giveaway reroll`'},
+				{ name: "Wie", value: `<@${interaction.user.id}>`}
+			]
+		);
 		const id: string = interaction.options.getString("id", true);
 		//
 	}
 
 	async list(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!interaction.isCommand()) return;
+
+		await LogToServer.info(
+			"Command gebruikt",
+			[
+				{ name: "Command", value: '`/giveaway lijst`'},
+				{ name: "Wie", value: `<@${interaction.user.id}>`}
+			]
+		);
 		//
 	}
 
