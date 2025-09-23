@@ -14,6 +14,7 @@ import { Logging } from "@utils/logging";
 import { Color } from "@enums/ColorEnum";
 import { getEnv } from "@utils/env";
 import { LogToServer } from "@utils/logToServer";
+import {getRandomElement} from "@utils/random.ts";
 
 export default class CommandsListener {
 	private readonly client: Client;
@@ -285,8 +286,65 @@ export default class CommandsListener {
 				{ name: "Wie", value: `<@${interaction.user.id}>`}
 			]
 		);
+
 		const id: string = interaction.options.getString("id", true);
-		//
+		const channel = await this.client.channels.fetch(getEnv("GIVEAWAY") as string) as TextChannel;
+
+		const result = await QueryBuilder
+			.select("giveaway_participants")
+			.where({
+				giveaway_id: id,
+				winner: 0,
+			})
+			.get();
+
+		const participants = result.map((p: { user_id: string; }) => p.user_id);
+
+		// @ts-ignore
+		const winnerId: string = getRandomElement(participants);
+
+		// Remove old winner from DB
+		await QueryBuilder
+			.update("giveaway_participants")
+			.set({
+				winner: 0
+			})
+			.where({
+				giveaway_id: id,
+				winner: 1,
+			})
+			.execute();
+
+		// Add new winner to DB
+		await QueryBuilder
+			.update("giveaway_participants")
+			.set({
+				winner: 0
+			})
+			.where({
+				user_id: winnerId,
+			})
+			.execute();
+
+		const user = await this.client.users.fetch(winnerId as string);
+
+		const embed = new EmbedBuilder()
+			.setColor(Color.Blue)
+			.setTitle(`${user.displayName}, je hebt de giveaway gewonnen!`)
+			.setDescription(`Veel plezier met "${result.prijs}"!\nClaim het binnen 48 uur door op de knop met 🎁 te klikken.`)
+
+		const claimRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`claim_giveaway_${result.id}_${winnerId}`)
+				.setLabel("🎁")
+				.setStyle(ButtonStyle.Success)
+		);
+
+		await channel.send({
+			content: `<@${winnerId}>`,
+			embeds: [embed],
+			components: [claimRow]
+		});
 	}
 
 	async list(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -311,7 +369,7 @@ export default class CommandsListener {
 
 		for (const giveaway of result) {
 			embed.addFields(
-				{ name: giveaway.prijs, value: `Eindigt op: ${giveaway.giveaway_at}` }
+				{ name: `[${giveaway.id}] - ${giveaway.prijs}`, value: `Eindigt op: ${giveaway.giveaway_at}` }
 			);
 		}
 

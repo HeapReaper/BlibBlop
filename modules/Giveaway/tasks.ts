@@ -96,7 +96,7 @@ export default class Tasks {
 				content: `<@${winnerId}>`,
 				embeds: [embed],
 				components: [claimRow]
-			})
+			});
 		}
 	}
 }
