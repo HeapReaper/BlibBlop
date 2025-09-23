@@ -162,9 +162,43 @@ export default class CommandsListener {
 
 	async delete(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!interaction.isCommand()) return;
-
+		const channel = await this.client.channels.fetch(getEnv("GIVEAWAY") as string) as TextChannel;
 		const id: string = interaction.options.getString("id", true);
-		//
+
+		const result = await QueryBuilder
+			.select("giveaways")
+			.where({
+				id: id
+			})
+			.first();
+
+		if (!result) {
+			await interaction.reply({
+				content: "Ik heb geen giveaway gevonden met dat ID!",
+				flags: [MessageFlags.Ephemeral]
+			});
+
+			return;
+		}
+
+		try {
+			await channel.messages.delete(result.bericht_id);
+		} catch (error) {
+			Logging.error(`Error inside giveaway command listener delete: ${error}`);
+			return;
+		}
+
+		await QueryBuilder
+			.delete("giveaways")
+			.where({
+				id: id
+			})
+			.execute();
+
+		await interaction.reply({
+			content: "Giveaway verwijderd!",
+			flags: [MessageFlags.Ephemeral]
+		});
 	}
 
 	async reroll(interaction: ChatInputCommandInteraction): Promise<void> {
