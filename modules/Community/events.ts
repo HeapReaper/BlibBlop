@@ -112,12 +112,21 @@ export default class Events {
 
     async tagMessage(): Promise<void> {
       this.client.on(DiscordEvents.MessageCreate, async (message): Promise<void> => {
-        // @ts-ignore
-        if (!message.mentions.users.has(this.client.user.id)) return;
+        if (message.author.bot) return;
 
+        // @ts-ignore
+        if (!message.mentions.has(this.client.user)) return;
+
+        // Optional: check that the mention is only for the bot (not multiple mentions)
+        const isOnlyBotMentioned =
+          // @ts-ignore
+          message.mentions.users.size === 1 && message.mentions.users.has(this.client.user.id);
+        if (!isOnlyBotMentioned) return;
+
+        // Pick a random reply from your array
         const messageToReact: string = this.tagMessages[Math.floor(Math.random() * this.tagMessages.length)];
 
-        await message.reply({content: messageToReact});
+        await message.reply({ content: messageToReact });
       });
     }
 }
