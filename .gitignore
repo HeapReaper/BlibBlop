@@ -4,4 +4,3 @@ bun.lockb
 /node_modules/
 /logs/app.log
 test.ts
-.vscode/settings.json
