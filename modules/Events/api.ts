@@ -40,6 +40,7 @@ export default function registerApi(app: Application, client: Client) {
             location,
             guildId: guild.id,
             guildName: guild.name,
+            image: event.coverImageURL({ size: 1024 }) ?? null,
           });
         });
       }
