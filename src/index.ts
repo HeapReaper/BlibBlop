@@ -11,8 +11,8 @@ import { getEnv } from "@utils/env";
 import { runMigrations } from "@utils/migrations.ts";
 import QueryBuilder from "@utils/database.ts";
 import * as process from "node:process";
-import { createWebServer } from "@utils/webServer";
 import { LogToServer } from "@utils/logToServer.ts";
+import { createWebServer } from "@utils/api";
 
 const client = new Client({
 	intents: [
@@ -34,6 +34,7 @@ const client = new Client({
 });
 
 client.on(DiscordEvents.ClientReady, async client => {
+	client.setMaxListeners(20)
 	const guild = await client.guilds.fetch(getEnv("GUILD_ID") as string);
 	const logChannel = await guild.channels.fetch(getEnv("LOG") as string) as TextChannel;
 
@@ -70,8 +71,18 @@ client.on(DiscordEvents.ClientReady, async client => {
 		Logging.error(`Unhandled Rejection: ${reason instanceof Error ? reason.stack : reason}`)
 	);
 
-	// Start webserver and API
-	await createWebServer(client, 3144);
+	const webApp = await createWebServer(client, 3144);
+
+  // Load modules + API
+  try {
+    const apiModules = await loadModules(client);
+
+    for (const registerApi of apiModules) {
+      registerApi(webApp, client);
+    }
+  } catch (error) {
+    Logging.error(`Error while loading modules: ${error}`);
+  }
 
 	Logging.info(`Client ready! Signed in as ${client.user.tag}!`);
 });
