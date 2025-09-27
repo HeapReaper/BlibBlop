@@ -3,6 +3,6 @@ import { Client } from "discord.js";
 
 export default function registerApi(app: Application, client: Client) {
   app.get("/example/hello", (req, res) => {
-    res.json({ message: "Hello from example module!" });
+    res.json({ message: "Hello from !" });
   });
 }
