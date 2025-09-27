@@ -78,24 +78,22 @@ export default class Events {
 
       if (record.channels.size >= minimalChannelsSize) {
         try {
-          if (member.moderatable) {
-            await member.timeout(24 * 60 * 60 * 1000, "Cross-channel spam detected");
-          }
+          await this.addMembertoJail(member.user.id);
 
           await this.sendNotification(
-            "Gebruiker getimeout",
-            `${member.user.displayName} heeft berichten in ${minimalChannelsSize} of meer kanalen binnen ${withInSeconds} seconden gestuurd en is getimeout voor 24 uur.`
+            "Gebruiker is in onze gevangenis geplaatst!",
+            `${member.user.displayName} heeft berichten in ${minimalChannelsSize} of meer kanalen binnen ${withInSeconds} seconden gestuurd en is in de gevangenis geplaatst.`
           );
 
           await LogToServer.warning(
-            "Gebruiker getimeout",
+            "Gebruiker is in onze gevangenis geplaatst!",
             [
               { name: "Wie", value: `<@${member.user.id}>` },
               { name: "Reden", value: "Bericht SPAM"}
             ]
           );
         } catch (err) {
-          console.error("Failed to timeout user:", err);
+          console.error("Failed to put in jail for user:", err);
         }
 
         this.userMessageMap.delete(userId);
@@ -137,6 +135,7 @@ export default class Events {
       );
     })
   }
+
   async sendNotification(title: string, content: string) {
     const channel = await this.client.channels.fetch(getEnv("GENERAL") as string) as TextChannel;
 
@@ -146,5 +145,19 @@ export default class Events {
       .setDescription(content);
 
     await channel.send({ embeds: [embed] });
+  }
+
+  async addMembertoJail(memberId: string) {
+    const channel = await this.client.channels.fetch(getEnv("GENERAL") as string) as TextChannel;
+    const member = await channel.guild.members.fetch(memberId);
+
+    if (!member) throw new Error("Member not found");
+
+    const jailRoleId = getEnv("JAIL_ROLE_ID");
+    const jailRole = channel.guild.roles.cache.get(getEnv("JAIL_ROLE_ID") as string);
+
+    if (!jailRole) throw new Error("Jail role not found");
+
+    await member.roles.add(jailRole, "Toegevoegd aan de gevangenis voor spam gedrag");
   }
 }
