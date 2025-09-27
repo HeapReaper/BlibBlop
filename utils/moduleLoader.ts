@@ -7,6 +7,7 @@ import { getEnv } from "@utils/env";
 async function loadModules(client: any) {
 	let modulesPath: string;
 	let moduleFolders: string[] = [];
+  const apiModules: ((app: any, client: any) => void)[] = [];
 
 	try {
 		modulesPath = path.join(<string>getEnv("MODULES_BASE_PATH"), "modules");
@@ -100,12 +101,34 @@ async function loadModules(client: any) {
 			}
 		}
 
+		const apiFile = path.join(modulePath, "api.ts");
+		try {
+			await fs.access(apiFile);
+			const apiURL = pathToFileURL(apiFile).href;
+			const apiModule = await import(apiURL);
+
+			if (!apiModule.default) {
+				Logging.error(`Module ${moduleFolder} api.ts does not have a default export`);
+			} else {
+				apiModules.push(apiModule.default);
+				Logging.debug(`Loaded API for module: ${moduleFolder}`);
+				moduleLoaded = true;
+			}
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+				Logging.error(`Error loading api for module "${moduleFolder}": ${error}`);
+			}
+		}
+
 		if (moduleLoaded) {
 			Logging.info(`Loaded module "${moduleFolder}": ${modulePath}`);
 		} else {
 			Logging.warn(`Module "${moduleFolder}" did not load any components`);
 		}
+
 	}
+
+	return apiModules;
 }
 
 export default loadModules;

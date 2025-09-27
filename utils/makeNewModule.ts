@@ -2,7 +2,6 @@ import { mkdirSync, existsSync, writeFileSync } from "fs";
 import * as process from "node:process";
 
 export async function makeNewModule(name: string) {
-
   const modulesDir = `./modules`;
   const moduleNameToCreate = name;
 
@@ -13,63 +12,70 @@ export async function makeNewModule(name: string) {
     process.exit();
   }
 
-  // Making modules folder
+  // Making module folder
   mkdirSync(`${modulesDir}/${moduleNameToCreate}`);
 
-  const commandsFileWrite =
-    `import { SlashCommandBuilder } from "discord.js";
+  const commandsFileWrite = `import { SlashCommandBuilder } from "discord.js";
 
 export const commands = [
 
 ].map(commands => commands.toJSON());
 `;
 
-    const commandsListenerFileWrite =
-      `import { Client, Interaction, Events, MessageFlags} from "discord.js";
+  const commandsListenerFileWrite = `import { Client, Interaction, Events, MessageFlags } from "discord.js";
 
 export default class CommandsListener {
-	private readonly client: Client;
+  private readonly client: Client;
 
-	constructor(client: Client) {
-		this.client = client;
-		void this.commandsListener();
-	}
-	
-	async commandsListener(): Promise<void> {
-		//
-	}
+  constructor(client: Client) {
+    this.client = client;
+    void this.commandsListener();
+  }
+
+  async commandsListener(): Promise<void> {
+    //
+  }
 }
 `;
 
-    const eventsFileWrite =
-      `import { Client, TextChannel } from "discord.js";
+  const eventsFileWrite = `import { Client, TextChannel } from "discord.js";
 
 export default class Events {
   private readonly client: Client;
-  
+
   constructor(client: Client) {
     this.client = client;
   }
 }
 `;
 
-    const tasksFileWrite =
-      `import { Client, TextChannel } from "discord.js";
+  const tasksFileWrite = `import { Client, TextChannel } from "discord.js";
 
 export default class Tasks {
-	private readonly client: Client;
+  private readonly client: Client;
 
   constructor(client: Client) {
-		this.client = client;
-	}
+    this.client = client;
+  }
 }
 `;
 
-  // Making and writing module files
+  const apiFileWrite = `import { Application } from "express";
+import { Client } from "discord.js";
+
+export default function registerApi(app: Application, client: Client) {
+  // app.get("/api/${moduleNameToCreate}", (req, res) => {
+  //   res.json({ message: "Hello from ${moduleNameToCreate}!" });
+  // });
+}
+`;
+
+  // Writing module files
   writeFileSync(`${modulesDir}/${moduleNameToCreate}/commands.ts`, commandsFileWrite);
   writeFileSync(`${modulesDir}/${moduleNameToCreate}/commandsListener.ts`, commandsListenerFileWrite);
   writeFileSync(`${modulesDir}/${moduleNameToCreate}/events.ts`, eventsFileWrite);
   writeFileSync(`${modulesDir}/${moduleNameToCreate}/tasks.ts`, tasksFileWrite);
+  writeFileSync(`${modulesDir}/${moduleNameToCreate}/api.ts`, apiFileWrite);
 
-  console.log("I created the module!");
+console.log(`I created the module with the name: ${moduleNameToCreate}`);
 }
