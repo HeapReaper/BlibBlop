@@ -9,7 +9,6 @@ import {
 import { getEnv } from "@utils/env";
 import { Logging } from "@utils/logging";
 import { Color } from "@enums/ColorEnum";
-import os from 'os';
 
 let instance: Events | null = null;
 
@@ -131,7 +130,7 @@ export default class Events {
 
         const messageToReact: string = this.tagMessages[Math.floor(Math.random() * this.tagMessages.length)];
 
-        await message.reply({ content:`${messageToReact} ${os.hostname}` });
+        await message.reply({ content:`${messageToReact}` });
       });
     }
 }
