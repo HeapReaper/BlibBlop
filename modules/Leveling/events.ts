@@ -10,6 +10,8 @@ import {Color} from '@enums/ColorEnum';
 import {getEnv} from '@utils/env';
 import {Logging} from '@utils/logging';
 
+let instance: Events | null = null;
+
 export default class Events {
   private readonly client: Client;
   private cooldown = new Map();
@@ -31,6 +33,9 @@ export default class Events {
   constructor(client: Client) {
     this.client = client;
     this.blipBlobChannel = this.client.channels.cache.get(getEnv('BLIPBLOP') as string) as TextChannel;
+
+    if (instance) return instance;
+    instance = this;
     void this.handleNewMessage();
   }
 

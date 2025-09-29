@@ -17,8 +17,6 @@ export default class Tasks {
 	private lastVideos: Videos = {};
 
 	constructor(client: Client) {
-		if (instance) return instance;
-
 		this.client = client;
 		this.baseUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=";
 		this.youtubeChannels = [
@@ -34,6 +32,8 @@ export default class Tasks {
 			"UC2bCOgyPSQMcBSqD9IfW5aw" // Kevin Dutch RC
 
 		];
+		if (instance) return instance;
+
 		instance = this;
 		cron.schedule("* * * * *", async () => {
 			await this.task();

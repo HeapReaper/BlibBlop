@@ -3,8 +3,10 @@ import { getEnv } from "@utils/env";
 import { Logging } from "@utils/logging";
 import { Color } from "@enums/ColorEnum";
 
+let instance: BumpReminderTasks | null = null;
+
 export default class BumpReminderTasks {
-	private client: Client;
+	private readonly client: Client;
 	private bumpChannel: TextChannel;
 	
 	constructor(client: Client) {
@@ -13,7 +15,10 @@ export default class BumpReminderTasks {
 			// @ts-ignore
 			getEnv("BUMP") !== undefined ? getEnv("BUMP") : Logging.error("BUMP channel not found in env!")
 		) as TextChannel;
-		
+
+		if (instance) return instance;
+		instance = this;
+
 		this.bumpReminderTask();
 	}
 	
