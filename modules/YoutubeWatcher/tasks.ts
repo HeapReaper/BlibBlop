@@ -30,7 +30,6 @@ export default class Tasks {
 			"UC2bCOgyPSQMcBSqD9IfW5aw" // Kevin Dutch RC
 		];
 
-		void this.task();
 		cron.schedule("* * * * *", async () => {
 			await this.task();
 		});
