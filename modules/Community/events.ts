@@ -9,6 +9,9 @@ import {
 import { getEnv } from "@utils/env";
 import { Logging } from "@utils/logging";
 import { Color } from "@enums/ColorEnum";
+import os from 'os';
+
+let instance: Events | null = null;
 
 export default class Events {
     private readonly client: Client;
@@ -49,9 +52,13 @@ export default class Events {
 
     constructor(client: Client) {
       this.client = client;
+
+      if (instance) return instance;
+
       void this.sendWelcomeMessage();
       void this.sendLeaveMessage();
       void this.tagMessage();
+      instance = this;
     }
 
     async sendWelcomeMessage(): Promise<void> {
@@ -117,16 +124,14 @@ export default class Events {
         // @ts-ignore
         if (!message.mentions.has(this.client.user)) return;
 
-        // Optional: check that the mention is only for the bot (not multiple mentions)
         const isOnlyBotMentioned =
           // @ts-ignore
           message.mentions.users.size === 1 && message.mentions.users.has(this.client.user.id);
         if (!isOnlyBotMentioned) return;
 
-        // Pick a random reply from your array
         const messageToReact: string = this.tagMessages[Math.floor(Math.random() * this.tagMessages.length)];
 
-        await message.reply({ content: messageToReact });
+        await message.reply({ content:`${messageToReact} ${os.hostname}` });
       });
     }
 }

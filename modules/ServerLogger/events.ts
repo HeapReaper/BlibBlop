@@ -26,6 +26,8 @@ import os from 'os';
 import { isBot } from '@utils/isBot';
 import { LogToServer } from '@utils/logToServer.ts';
 
+let instance: Events | null = null;
+
 export async function externalLogToServer(message: string, client: Client) {
 	const logChannel = client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
 
@@ -47,6 +49,8 @@ export default class Events {
 
 	constructor(client: Client) {
 		this.client = client;
+
+		if (instance) return instance;
 		this.logChannel = this.client.channels.cache.get(<string>getEnv('LOG')) as TextChannel;
 		this.automationChannel = this.client.channels.cache.get(<string>getEnv('AUTOMATION')) as TextChannel;
 		this.botIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/bot.png`);
@@ -60,6 +64,8 @@ export default class Events {
 		this.reactionEvents();
 		this.voiceChannelEvents();
 		void this.memberEvents();
+
+		instance = this;
 	}
 
 	async bootEvent(): Promise<void> {
