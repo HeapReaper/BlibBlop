@@ -8,6 +8,8 @@ import { Logging } from "@utils/logging";
 
 type Videos = Record<string, string>;
 
+let instance: Tasks | null = null;
+
 export default class Tasks {
 	private readonly client: Client;
 	private readonly baseUrl: string;
@@ -15,6 +17,8 @@ export default class Tasks {
 	private lastVideos: Videos = {};
 
 	constructor(client: Client) {
+		if (instance) return instance;
+
 		this.client = client;
 		this.baseUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=";
 		this.youtubeChannels = [
@@ -28,8 +32,9 @@ export default class Tasks {
 			"UCX3eufnI7A2I7IkKHZn8KSQ", // Joshua Bardwell
 			"UCW_boHRuh7RT4ukTwDELMGA", // Mark Santa Maria
 			"UC2bCOgyPSQMcBSqD9IfW5aw" // Kevin Dutch RC
-		];
 
+		];
+		instance = this;
 		cron.schedule("* * * * *", async () => {
 			await this.task();
 		});
