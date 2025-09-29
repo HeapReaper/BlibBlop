@@ -7,6 +7,8 @@ import cron from 'node-cron';
 import { getEnv } from '@utils/env';
 import { ColorEnum } from '@enums/ColorEnum';
 
+let instance: Tasks | null = null;
+
 export default class Tasks {
 	private client: Client;
 	private generalChannel: TextChannel;
@@ -14,6 +16,9 @@ export default class Tasks {
 	constructor(client: Client) {
 		this.client = client;
 		this.generalChannel = this.client.channels.cache.get(getEnv('GENERAL') as string) as TextChannel;
+
+    if (instance) return instance;
+    instance = this;
 
 		// Runs on tuesday, thursday and saturday
 		cron.schedule('0 19 * * Tue,Thu,Sat', async () => {
