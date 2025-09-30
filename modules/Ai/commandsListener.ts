@@ -1,62 +1,74 @@
 import {
-	Client,
-	Events,
-	MessageFlags,
-	ChatInputCommandInteraction,
+  Client,
+  Events,
+  MessageFlags,
+  ChatInputCommandInteraction,
 } from "discord.js";
 import { Logging } from "@utils/logging";
 import { getEnv } from "@utils/env";
 
+let instance: CommandsListener | null = null;
+
 export default class CommandsListener {
-	private readonly client: Client;
+  private readonly client: Client;
 
-	constructor(client: Client) {
-		this.client = client;
-		void this.commandsListener();
-	}
+  constructor(client: Client) {
+    this.client = client;
 
-	async commandsListener(): Promise<void> {
-		this.client.on(Events.InteractionCreate, async (interaction): Promise<void> => {
-			if (!interaction.isChatInputCommand()) return;
+    if (instance) return;
+    instance = this;
+    void this.commandsListener();
+  }
 
-			const { commandName } = interaction;
-			const subCommandName: string | null = interaction.options.getSubcommand(true);
+  async commandsListener(): Promise<void> {
+    this.client.on(
+      Events.InteractionCreate,
+      async (interaction): Promise<void> => {
+        if (!interaction.isChatInputCommand()) return;
 
-			if (commandName !== "ai") return;
+        const { commandName } = interaction;
+        const subCommandName: string | null =
+          interaction.options.getSubcommand(true);
 
-			switch (subCommandName) {
-				case "vraag":
-					await this.ask(interaction);
-					break;
-			}
-		});
-	}
+        if (commandName !== "ai") return;
 
-	private async ask(interaction: ChatInputCommandInteraction): Promise<void> {
-		if (!interaction.isChatInputCommand()) return;
+        switch (subCommandName) {
+          case "vraag":
+            await this.ask(interaction);
+            break;
+        }
+      },
+    );
+  }
 
-		const prompt: string = interaction.options.getString("prompt", true);
+  private async ask(interaction: ChatInputCommandInteraction): Promise<void> {
+    if (!interaction.isChatInputCommand()) return;
 
-		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const prompt: string = interaction.options.getString("prompt", true);
 
-		const aiResponse = await this.fetchAiResponse(prompt);
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-		await interaction.editReply(aiResponse);
-	}
+    const aiResponse = await this.fetchAiResponse(prompt);
 
-	async fetchAiResponse(prompt: string): Promise<string> {
-			const response = await fetch(`${getEnv("AI_API_URL") as string}/api/generate`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				model: "gemma:2b",
-				prompt: prompt,
-				stream: false
-			}),
-		});
+    await interaction.editReply(aiResponse);
+  }
 
-		const data = await response.json();
+  async fetchAiResponse(prompt: string): Promise<string> {
+    const response = await fetch(
+      `${getEnv("AI_API_URL") as string}/api/generate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "gemma:2b",
+          prompt: prompt,
+          stream: false,
+        }),
+      },
+    );
 
-		return data.response;
-	}		
+    const data = await response.json();
+
+    return data.response;
+  }
 }

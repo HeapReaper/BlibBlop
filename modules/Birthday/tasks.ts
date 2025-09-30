@@ -7,47 +7,58 @@ import { calcAge } from "@utils/age";
 import { Color } from "@enums/ColorEnum";
 import { DateTime } from "luxon";
 
+let instance: Tasks | null = null;
+
 export default class Tasks {
-	private client: Client;
+  private client: Client;
 
-	constructor(client: Client) {
-		this.client = client;
+  constructor(client: Client) {
+    this.client = client;
 
-		cron.schedule("0 10 * * *", async (): Promise<void> => {
-			Logging.debug("Running Cron 'checkBirthdays'");
-			void this.checkBirthdays();
-		});
-	}
+    if (instance) return;
+    instance = this;
 
-	async checkBirthdays(): Promise<void> {
-		const now = DateTime.now().setZone("Europe/Amsterdam");
-		const birthdays: any[] = await QueryBuilder.select("birthday").get();
+    cron.schedule("0 10 * * *", async (): Promise<void> => {
+      Logging.debug("Running Cron 'checkBirthdays'");
+      void this.checkBirthdays();
+    });
+  }
 
-		for (const birthday of birthdays) {
-			const birthdayDate = DateTime.fromJSDate(new Date(birthday.birthdate)).setZone("Europe/Amsterdam");
+  async checkBirthdays(): Promise<void> {
+    const now = DateTime.now().setZone("Europe/Amsterdam");
+    const birthdays: any[] = await QueryBuilder.select("birthday").get();
 
-			if (birthdayDate.month !== now.month || birthdayDate.day !== now.day) {
-				continue;
-			}
+    for (const birthday of birthdays) {
+      const birthdayDate = DateTime.fromJSDate(
+        new Date(birthday.birthdate),
+      ).setZone("Europe/Amsterdam");
 
-			const user = await this.client.users.fetch(`${birthday.user_id}`);
-			const channelToSend = this.client.channels.cache.get(getEnv("GENERAL") as string) as TextChannel;
+      if (birthdayDate.month !== now.month || birthdayDate.day !== now.day) {
+        continue;
+      }
 
-			if (!channelToSend) {
-				Logging.warn("I cannot find channel to send birthday notification to!");
-				return;
-			}
+      const user = await this.client.users.fetch(`${birthday.user_id}`);
+      const channelToSend = this.client.channels.cache.get(
+        getEnv("GENERAL") as string,
+      ) as TextChannel;
 
-			const age = now.year - birthdayDate.year;
+      if (!channelToSend) {
+        Logging.warn("I cannot find channel to send birthday notification to!");
+        return;
+      }
 
-			const embed = new EmbedBuilder()
-				.setColor(0x2563EB)
-				.setTitle("RC Garage")
-				.setDescription(`Hey ${user},\ngefeliciteerd met je ${age}e verjaardag!\n🎊💪`)
-				.setThumbnail(user.displayAvatarURL())
-				.setTimestamp();
+      const age = now.year - birthdayDate.year;
 
-			await channelToSend.send({ embeds: [embed] });
-		}
-	}
+      const embed = new EmbedBuilder()
+        .setColor(0x2563eb)
+        .setTitle("RC Garage")
+        .setDescription(
+          `Hey ${user},\ngefeliciteerd met je ${age}e verjaardag!\n🎊💪`,
+        )
+        .setThumbnail(user.displayAvatarURL())
+        .setTimestamp();
+
+      await channelToSend.send({ embeds: [embed] });
+    }
+  }
 }

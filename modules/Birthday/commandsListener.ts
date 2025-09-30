@@ -1,148 +1,187 @@
 import {
-	Client,
-	Interaction,
-	Events,
-	MessageFlags,
-	PermissionsBitField,
-	EmbedBuilder,
+  Client,
+  Interaction,
+  Events,
+  MessageFlags,
+  PermissionsBitField,
+  EmbedBuilder,
 } from "discord.js";
 import { Logging } from "@utils/logging";
 import QueryBuilder from "@utils/database";
 import { Color } from "@enums/ColorEnum";
 import { formatDate } from "@utils/formatDate";
-import { LogToServer } from "@utils/logToServer.ts";
+import { LogToServer } from "@utils/logToServer";
+
+let instance: CommandsListener | null = null;
 
 export default class CommandsListener {
-	private client: Client;
+  private client: Client;
 
-	constructor(client: Client) {
-		this.client = client;
-		void this.commandListener();
-	}
+  constructor(client: Client) {
+    this.client = client;
 
-	async commandListener(): Promise<void> {
-		this.client.on(Events.InteractionCreate, async (interaction: Interaction): Promise<void> => {
-			if (!interaction.isCommand()) return;
+    if (instance) return;
+    instance = this;
+    void this.commandListener();
+  }
 
-			const { commandName } = interaction;
-			// @ts-ignore
-			const subCommandName: string | null = interaction.options.getSubcommand(false); // `false` = required = false
+  async commandListener(): Promise<void> {
+    this.client.on(
+      Events.InteractionCreate,
+      async (interaction: Interaction): Promise<void> => {
+        if (!interaction.isCommand()) return;
 
-			if (commandName !== "verjaardag") return;
+        const { commandName } = interaction;
+        // @ts-ignore
+        const subCommandName: string | null =
+          interaction.options.getSubcommand(false); // `false` = required = false
 
-			switch (subCommandName) {
-				case "toevoegen":
-					void this.birthdayAdd(interaction);
-					break;
-				case "verwijderen":
-					void this.birthdayRemove(interaction);
-					break;
-				case "lijst":
-					void this.birthdayList(interaction);
-					break;
-			}
-		});
-	}
+        if (commandName !== "verjaardag") return;
 
-	async birthdayAdd(interaction: Interaction): Promise<void> {
-		if (!interaction.isCommand()) return;
-		Logging.info("Adding a birthday");
+        switch (subCommandName) {
+          case "toevoegen":
+            void this.birthdayAdd(interaction);
+            break;
+          case "verwijderen":
+            void this.birthdayRemove(interaction);
+            break;
+          case "lijst":
+            void this.birthdayList(interaction);
+            break;
+        }
+      },
+    );
+  }
 
-		try {
-			// @ts-ignore
-			if (await QueryBuilder.select("birthday").where({user_id: interaction.user.id}).count().get() !== 0) {
-				await interaction.reply({content: "Je hebt jezelf al toegevoegd aan de verjaardag functie!", flags: MessageFlags.Ephemeral});
-				return;
-			}
+  async birthdayAdd(interaction: Interaction): Promise<void> {
+    if (!interaction.isCommand()) return;
+    Logging.info("Adding a birthday");
 
-			await QueryBuilder
-				.insert("birthday")
-				.values({
-					user_id: interaction.user.id,
-					// @ts-ignore
-					birthdate: `${interaction.options.getInteger("jaar")}-${interaction.options.getInteger("maand")}-${interaction.options.getInteger("dag")}`
-				})
-				.execute();
+    try {
+      // @ts-ignore
+      if (
+        (await QueryBuilder.select("birthday")
+          .where({ user_id: interaction.user.id })
+          .count()
+          .get()) !== 0
+      ) {
+        await interaction.reply({
+          content: "Je hebt jezelf al toegevoegd aan de verjaardag functie!",
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
 
-			await LogToServer.info("Verjaardag toegevoegd", [
-				{ name: "Gebruiker", value: `<@${interaction.user.id}>` }
-			]);
+      await QueryBuilder.insert("birthday")
+        .values({
+          user_id: interaction.user.id,
+          // @ts-ignore
+          birthdate: `${interaction.options.getInteger("jaar")}-${interaction.options.getInteger("maand")}-${interaction.options.getInteger("dag")}`,
+        })
+        .execute();
 
-			await interaction.reply({content: "Je verjaardag is in AllDayBot toegevoegd!", flags: MessageFlags.Ephemeral});
-		} catch (error) {
-			Logging.error(`Error inside commandListener for Birthday: ${error}`);
-			await interaction.reply({content: "Er ging iets mis! Het probleem is gerapporteerd aan de developer.", flags: MessageFlags.Ephemeral});
-			return;
-		}
-	}
+      await LogToServer.info("Verjaardag toegevoegd", [
+        { name: "Gebruiker", value: `<@${interaction.user.id}>` },
+      ]);
 
-	async birthdayRemove(interaction: Interaction): Promise<void> {
-		if (!interaction.isCommand()) return;
-		Logging.info("Deleted a birthday");
+      await interaction.reply({
+        content: "Je verjaardag is in AllDayBot toegevoegd!",
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (error) {
+      Logging.error(`Error inside commandListener for Birthday: ${error}`);
+      await interaction.reply({
+        content:
+          "Er ging iets mis! Het probleem is gerapporteerd aan de developer.",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+  }
 
-		try {
-			// @ts-ignore
-			if (await QueryBuilder.select("birthday").where({user_id: interaction.user.id}).count().get() === 0) {
-				await interaction.reply({content: "Je hebt geen verjaardag in AllDayBot staan!", flags: MessageFlags.Ephemeral});
-				return;
-			}
+  async birthdayRemove(interaction: Interaction): Promise<void> {
+    if (!interaction.isCommand()) return;
+    Logging.info("Deleted a birthday");
 
-			await QueryBuilder
-				.delete("birthday")
-				.where({user_id: interaction.user.id})
-				.execute();
+    try {
+      // @ts-ignore
+      if (
+        (await QueryBuilder.select("birthday")
+          .where({ user_id: interaction.user.id })
+          .count()
+          .get()) === 0
+      ) {
+        await interaction.reply({
+          content: "Je hebt geen verjaardag in AllDayBot staan!",
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
 
-			await LogToServer.info("Verjaardag verwijderd", [
-				{ name: "Gebruiker", value: `<@${interaction.user.id}>` }
-			]);
+      await QueryBuilder.delete("birthday")
+        .where({ user_id: interaction.user.id })
+        .execute();
 
-			await interaction.reply({content: "Je verjaardag is uit AllDayBot gehaald!", flags: MessageFlags.Ephemeral});
-		} catch (error) {
-			Logging.error(`Something went wrong while deleting birthday: ${error}`);
-			await interaction.reply({content: "Er ging iets mis! Het probleem is gerapporteerd aan de developer.", flags: MessageFlags.Ephemeral});
-			return
-		}
-	}
+      await LogToServer.info("Verjaardag verwijderd", [
+        { name: "Gebruiker", value: `<@${interaction.user.id}>` },
+      ]);
 
-	async birthdayList(interaction: Interaction): Promise<void> {
-		if (!interaction.isCommand()) return;
+      await interaction.reply({
+        content: "Je verjaardag is uit AllDayBot gehaald!",
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (error) {
+      Logging.error(`Something went wrong while deleting birthday: ${error}`);
+      await interaction.reply({
+        content:
+          "Er ging iets mis! Het probleem is gerapporteerd aan de developer.",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+  }
 
-		if (!interaction.member) {
-			await interaction.reply({
-				content: "Oeps, er ging iets mis!",
-				flags: MessageFlags.Ephemeral,
-			});
+  async birthdayList(interaction: Interaction): Promise<void> {
+    if (!interaction.isCommand()) return;
 
-			return;
-		}
+    if (!interaction.member) {
+      await interaction.reply({
+        content: "Oeps, er ging iets mis!",
+        flags: MessageFlags.Ephemeral,
+      });
 
-		// @ts-ignore
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-			await interaction.reply({
-				content: "Oeps, je hebt er geen toegang tot!",
-				flags: MessageFlags.Ephemeral,
-			});
+      return;
+    }
 
-			return;
-		}
+    // @ts-ignore
+    if (
+      !interaction.member.permissions.has(
+        PermissionsBitField.Flags.ManageMessages,
+      )
+    ) {
+      await interaction.reply({
+        content: "Oeps, je hebt er geen toegang tot!",
+        flags: MessageFlags.Ephemeral,
+      });
 
-		const birthdays = await QueryBuilder
-			.select("birthday")
-			.execute();
+      return;
+    }
 
-		const embed = new EmbedBuilder()
-			.setColor(Color.AeroBytesBlue)
-			.setTitle("Verjaardagen")
+    const birthdays = await QueryBuilder.select("birthday").execute();
 
-		for (const birthday of birthdays) {
-			const user = await this.client.users.fetch(birthday.user_id);
+    const embed = new EmbedBuilder()
+      .setColor(Color.AeroBytesBlue)
+      .setTitle("Verjaardagen");
 
-			embed.addFields({
-				name: user ? user.displayName : birthday.user_id,
-				value: formatDate(birthday.birthdate),
-			})
-		}
+    for (const birthday of birthdays) {
+      const user = await this.client.users.fetch(birthday.user_id);
 
-		await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-	}
+      embed.addFields({
+        name: user ? user.displayName : birthday.user_id,
+        value: formatDate(birthday.birthdate),
+      });
+    }
+
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+  }
 }
