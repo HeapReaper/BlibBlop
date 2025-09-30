@@ -12,11 +12,16 @@ import { externalLogToServer } from "../ServerLogger/events";
 import { Color } from "@enums/ColorEnum";
 import {LogToServer} from "@utils/logToServer.ts";
 
+let instance: Events | null = null;
+
 export default class Events {
   private readonly client: Client;
 
   constructor(client: Client) {
     this.client = client;
+
+    if (instance) return instance;
+    instance = this;
     void this.onPhotoContestMessage();
     void this.onPhotoContestReaction();
   }

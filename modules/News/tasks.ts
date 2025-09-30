@@ -7,14 +7,18 @@ import cron from 'node-cron';
 import { getEnv } from '@utils/env';
 import { Logging } from '@utils/logging';
 
+let instance: Tasks | null = null;
+
 export default class Tasks {
-	private client: Client;
+	private readonly client: Client;
 	private lastArticleId = null;
 
 	constructor(client: Client) {
 		this.client = client;
-		void this.task()
 
+		if (instance) return instance;
+		instance = this;
+		void this.task()
 		cron.schedule('* * * * *', async () => {
 			await this.task();
 		})

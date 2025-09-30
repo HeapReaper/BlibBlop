@@ -9,11 +9,16 @@ import {getEnv} from '@utils/env';
 import QueryBuilder from '@utils/database';
 import { Color } from '@enums/ColorEnum';
 
+let instance: Tasks | null = null;
+
 export default class Tasks {
-	private client: Client;
+	private readonly client: Client;
 
     constructor(client: Client) {
 			this.client = client;
+
+			if (instance) return instance;
+			instance = this;
 			cron.schedule('30 18 28-31 * *', async () => { // 18:30 every end of the month
 				const today = new Date();
 				const tomorrow = new Date(today);

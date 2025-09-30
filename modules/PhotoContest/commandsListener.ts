@@ -3,7 +3,7 @@ import Database from '@utils/database';
 import { Logging } from '@utils/logging';
 
 export default class CommandsListener {
-	private client: Client;
+	private readonly client: Client;
 
 	constructor(client: Client) {
 		this.client = client;

@@ -11,6 +11,8 @@ import QueryBuilder from '@utils/database';
 import { Color } from "@enums/ColorEnum.ts";
 import { LogToServer } from '@utils/logToServer';
 
+let instance: Events | null = null;
+
 export default class Events {
   private readonly client: Client;
   private readonly RcFailsChannelId: string;
@@ -18,6 +20,9 @@ export default class Events {
   constructor(client: Client) {
     this.client = client;
     this.RcFailsChannelId = getEnv('RC_FAILS') ?? '';
+
+    if (instance) return instance;
+    instance = this;
     void this.onRcFailMessage();
     void this.onRcFailReaction();
   }
