@@ -19,7 +19,7 @@ export default class BumpReminderTasks {
 		if (instance) return instance;
 		instance = this;
 
-		this.bumpReminderTask();
+		//this.bumpReminderTask();
 	}
 	
 	bumpReminderTask(): void {

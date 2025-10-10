@@ -22,12 +22,12 @@ export default class Tasks {
 
 		// Runs on tuesday, thursday and saturday
 		cron.schedule('0 19 * * Tue,Thu,Sat', async () => {
-			void this.disboardReview();
+			//void this.disboardReview();
 		});
 
 		// Runs on monday, wednesday and friday at 20:00
 		cron.schedule('0 20 * * Mon,Wed,Fri', async () => {
-			void this.voteReminder();
+			//void this.voteReminder();
 		})
 	}
 

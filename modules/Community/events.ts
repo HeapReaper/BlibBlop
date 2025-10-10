@@ -54,7 +54,7 @@ export default class Events {
 
       if (instance) return instance;
 
-      void this.sendWelcomeMessage();
+      //void this.sendWelcomeMessage();
       void this.sendLeaveMessage();
       void this.tagMessage();
       instance = this;
