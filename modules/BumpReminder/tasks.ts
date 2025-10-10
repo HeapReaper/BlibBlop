@@ -14,7 +14,7 @@ export default class BumpReminderTasks {
 			getEnv("BUMP") !== undefined ? getEnv("BUMP") : Logging.error("BUMP channel not found in env!")
 		) as TextChannel;
 		
-		this.bumpReminderTask();
+		//this.bumpReminderTask();
 	}
 	
 	bumpReminderTask(): void {

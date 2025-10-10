@@ -49,7 +49,7 @@ export default class Events {
 
     constructor(client: Client) {
       this.client = client;
-      void this.sendWelcomeMessage();
+      //void this.sendWelcomeMessage();
       void this.sendLeaveMessage();
       void this.tagMessage();
     }
