@@ -403,7 +403,7 @@ export default class CommandsListener {
 		);
 
 		const message = await channel.send({
-			content: `Giveaway! ${tagEveryone ? "@here" : ""}`,
+			content: `Giveaway! ${tagEveryone ? "@everyone" : ""}`,
 			embeds: [giveawayEmbed],
 			components: [row],
 		});
