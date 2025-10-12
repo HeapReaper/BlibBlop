@@ -16,7 +16,7 @@ export default class CommandsListener {
 
 	constructor(client: Client) {
 		this.client = client;
-		void this.commandsListener();
+		//void this.commandsListener();
 	}
 
 	async commandsListener(): Promise<void> {
