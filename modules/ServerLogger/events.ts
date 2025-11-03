@@ -40,12 +40,12 @@ export default class Events {
 	private readonly client: Client;
 	private logChannel: any;
 	private automationChannel: any;
-	private readonly botIcon: AttachmentBuilder;
-	private readonly chatIcon: AttachmentBuilder;
-	private readonly voiceChatIcon: AttachmentBuilder;
-	private readonly reactionIcon: AttachmentBuilder;
-	private readonly userIcon: AttachmentBuilder;
-	private readonly moderationIcon: AttachmentBuilder;
+	private readonly botIcon: AttachmentBuilder | undefined;
+	private readonly chatIcon: AttachmentBuilder | undefined;
+	private readonly voiceChatIcon: AttachmentBuilder | undefined;
+	private readonly reactionIcon: AttachmentBuilder | undefined;
+	private readonly userIcon: AttachmentBuilder | undefined;
+	private readonly moderationIcon: AttachmentBuilder | undefined;
 
 	constructor(client: Client) {
 		this.client = client;
@@ -59,11 +59,11 @@ export default class Events {
 		this.reactionIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/happy-face-blue.png`);
 		this.userIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/user.png`);
 		this.moderationIcon = new AttachmentBuilder(`${<string>getEnv('MODULES_BASE_PATH')}src/media/icons/moderation.png`);
-		void this.bootEvent();
-		this.messageEvents();
-		this.reactionEvents();
-		this.voiceChannelEvents();
-		void this.memberEvents();
+		//void this.bootEvent();
+		//this.messageEvents();
+		//this.reactionEvents();
+		//this.voiceChannelEvents();
+		//void this.memberEvents();
 
 		instance = this;
 	}
