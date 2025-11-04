@@ -17,7 +17,7 @@ export default class Events {
   constructor(client: Client) {
     this.client = client;
     this.introChannel = this.client.channels.cache.get(getEnv("INTRO") as string) as TextChannel;
-    void this.bootEvent();
+    //void this.bootEvent();
   }
 
   async bootEvent(): Promise<void> {
@@ -46,7 +46,7 @@ export default class Events {
         ]);
       }
 
-      await message.react("👋");
+      //await message.react("👋");
     });
   }
 
