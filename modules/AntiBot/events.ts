@@ -26,9 +26,9 @@ export default class Events {
     if (instance) return;
     instance = this;
 
-    void this.inviteBlocker();
-    void this.massMessageBlocker();
-    void this.spamWordBlocker();
+    //void this.inviteBlocker();
+    //void this.massMessageBlocker();
+    //void this.spamWordBlocker();
   }
 
   async inviteBlocker() {
